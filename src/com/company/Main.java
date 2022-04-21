@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 
@@ -16,6 +17,8 @@ public class Main{
     static BufferedWriter b_w_auxiliar;
     static BufferedReader b_r_archive;
     static ArrayList<Character> lista = new ArrayList<>();
+
+    int[] ctrls = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
     
     public static File leerArchivo(File archive){ //se lee la info que esta en el archivo archive
 
@@ -225,6 +228,161 @@ public class Main{
         }
 
     }
+
+
+
+    public void hamm8 (String archivo){
+
+        int[] caracter = new int[8];
+        int[] salida = new int[8];
+
+        //caracter = binario del caracter tomado de archivo
+
+
+        //tomar 4 de caracter, y pasar a hammwith4
+
+        //si salida no llega a 8, tomar con los proximos 4 y agregar
+
+    }
+
+    public int[] construirHamm4(int[] info){
+
+        int [] ham = new int[8];
+        int j=0;
+
+        for (int i=0;i<8;i++){
+            if(inCtrls(i+1)){
+                ham[i] = -1;
+            }
+            else{
+                ham[i]=info[j];
+                j++;
+            }
+        }
+
+        int cont = 4;
+        return ham;
+    }
+
+/*
+    public void addcontrol3(int[] arr){
+        int cont = 4;
+        int ctrol = 3;
+        int pos; //15 = tope-1
+        int aux = 0;
+
+        for(pos = 14;ctrol < pos;pos--) {
+            aux =+ arr[pos];
+            cont--;
+            if (cont == 0){
+                pos = pos-4;
+                cont=4;
+            }
+        }
+
+        if (aux % 2 == 0){
+            arr[pos] = 0;
+        }
+        else {
+            arr[pos]=1;
+        }
+    }
+
+    public void addcontrol2(int[] arr){
+        int cont = 2;
+        int ctrol = 1;
+        int pos; //15 = tope-1
+        int aux = 0;
+
+        for(pos = 14;ctrol < pos;pos--) {
+            aux =+ arr[pos];
+            cont--;
+            if (cont == 0){
+                pos = pos-2;
+                cont=2;
+            }
+        }
+
+        if (aux % 2 == 0){
+            arr[pos]=0;
+        }
+        else {
+            arr[pos]=1;
+        }
+    }
+
+
+    public void addcontrol1(int[] arr){
+        int cont = 1;
+        int ctrol = 0;
+        int aux = 0;
+        int pos; //15 = tope-1
+
+
+        for(pos = 14;ctrol < pos;pos--) {
+            aux =+ arr[pos];
+            cont--;
+            if (cont == 0){
+                pos = pos-1;
+                cont=1;
+            }
+        }
+
+        if (aux % 2 == 0){
+            arr[pos] = 0;
+        }
+        else {
+            arr[pos] = 1;
+        }
+    }*/
+
+
+    public int[] addcontrols(int[] arr, int posMaxCtrl){ //7
+        int pos;
+        int cont;
+        int permacont;
+        int posCtrol;
+
+        //int[] ctrls = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
+        //               0 1 2 3 4  5  6   7   8   9   10   11   12   13   14   15     16     17     18
+        //               0 1 3 7 15 31 63 127 255 511
+
+
+        for (int k = posMaxCtrl;0<=k;k--){
+            int aux = 0;
+            cont = ctrls[posMaxCtrl];
+            permacont = ctrls[posMaxCtrl];
+            posCtrol =  ctrls[posMaxCtrl]-1;
+
+            for (pos = ((arr.length)-1); posCtrol < pos; pos--){
+                aux =+ arr[pos];
+                cont--;
+
+                if(cont == 0){
+                    pos= pos - permacont;
+                    cont = permacont;
+                }
+            }
+
+            if(aux % 2 == 0){
+                arr[pos] = 0;
+            }
+            else{
+                arr[pos] = 1;
+            }
+        }
+        return arr;
+    }
+
+
+
+    public boolean inCtrls(int numero){
+        return Arrays.asList(ctrls).contains(numero);
+    }
+
+
+
+
 
     
 }
