@@ -231,38 +231,7 @@ public class Main{
 
 
 
-    public void hamm8 (String archivo){
 
-        int[] caracter = new int[8];
-        int[] salida = new int[8];
-
-        //caracter = binario del caracter tomado de archivo
-
-
-        //tomar 4 de caracter, y pasar a hammwith4
-
-        //si salida no llega a 8, tomar con los proximos 4 y agregar
-
-    }
-
-    public int[] construirHamm4(int[] info){
-
-        int [] ham = new int[8];
-        int j=0;
-
-        for (int i=0;i<8;i++){
-            if(inCtrls(i+1)){
-                ham[i] = -1;
-            }
-            else{
-                ham[i]=info[j];
-                j++;
-            }
-        }
-
-        int cont = 4;
-        return ham;
-    }
 
 /*
     public void addcontrol3(int[] arr){
@@ -337,6 +306,40 @@ public class Main{
     }*/
 
 
+
+    //info: arreglo de 4 248 8179 o 262126 bits de informacion
+    //cant: tamaño del bloque 8 256 8192 o 262144
+
+    public int[] contruirHamming(int[] info,int cant){
+
+        int [] ham = new int[cant];
+        int j=0;
+
+
+        //i: recorre el arreglo final
+        //j: recorre el arreglo de informacion
+
+        for (int i=0;i<cant;i++){
+            if(inCtrls(i+1)){
+                ham[i] = -1;
+            }
+            else{
+                ham[i]=info[j];
+                j++;
+            }
+        }
+
+        ham = addcontrols(ham,cant-1);
+
+        return ham;
+
+        //salida hamming con controles
+    }
+
+
+
+    //recibe arreglo de 4 248 8179 o 262126 bits
+
     public int[] addcontrols(int[] arr, int posMaxCtrl){ //7
         int pos;
         int cont;
@@ -376,11 +379,13 @@ public class Main{
 
 
 
+
+
+
+
     public boolean inCtrls(int numero){
         return Arrays.asList(ctrls).contains(numero);
     }
-
-
 
 
 
