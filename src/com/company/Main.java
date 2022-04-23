@@ -24,46 +24,42 @@ public class Main{
     static ArrayList<String> listaS = new ArrayList<>();
     static ArrayList<Character> listaC = new ArrayList<>();
 
-    int[] ctrls = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
+    static int[] ctrls = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
 
-    public static String leerArchivo(String rutaArchive){ //se lee la info que esta en el archivo archive
+    public static ArrayList leerArchivo(String rutaArchive){ //se lee la info que esta en el archivo archive
         archive = new File(rutaArchive);
         //StringBuffer sb_archive = new StringBuffer();
         String texto = "";
-        String auxiliar = "";
+        ArrayList<int[]> auxiliar = new ArrayList<int[]>();
+
+        int[] buf_salida = new int[8];
+        int[] datosdeCuatro = new int[4];
+
+
+
         int i = 0;
 
         try{
             b_r_archive = new BufferedReader(new InputStreamReader(new FileInputStream(rutaArchive), "utf-8"));
-            //se usa el string buffer, inutstreamreader y fileinputstream ya que hay ciertos caracteres que no
-            //estan en ascii, y necesitamos codificarlos en codificacion UTF-8 sino nos traeran problemas.
-
-            //r_archive = new FileReader(archive);
-            //b_r_archive = new BufferedReader(r_archive);
-
-                /*
-                int caracterL = r_archive.read();
-                while(caracterL != -1){
-                    char caracter = (char) caracterL;
-                    //lista.add(caracter);
-                    caracterL = r_archive.read(); //lee los demas caracteres
-                    texto += caracter;
-                }*/
-
             while ((texto = b_r_archive.readLine()) != null){
                 //sb_archive.append(texto+"\n");
                 listaS.add(texto+"\n");
-                listaC = pasarCadaC(listaS); //pasamos lo que esta en listaS a una listaC que tiene caracteres, no strings
-                auxiliar = aBinario(listaC);
+                listaC = pasarCadaC(listaS); //pasamos lo que esta en listas a una listaC que tiene caracteres, no strings
+                auxiliar =aBinario(listaC);
 
-            }
+                //hamming 8
 
-            System.out.println("LA LISTAS DSP DEL WHILE ES:");
-            System.out.println(listaS);
-            System.out.println("LA LISTAC DSP DEL WHILE ES:");
-            System.out.println(listaC);
-            System.out.println("el texto en binario es:");
-            System.out.println(auxiliar);
+                for (int[] d:auxiliar){
+                    for(int j=0;j<4;j++){
+                        datosdeCuatro[j]=d[j];
+                    }
+                    //[0,0,1,0,1,1,1,-2]
+                    buf_salida = contruirHamming(datosdeCuatro,8);
+                }
+
+
+            }//new line
+
 
             b_r_archive.close();
 
@@ -87,20 +83,36 @@ public class Main{
         return lista;
     }
 
-    public static String aBinario(ArrayList<Character> lista)throws IOException{
+    public static ArrayList<int[]> aBinario(ArrayList<Character> lista)throws IOException{
+        int[] info = new int[8];
+        ArrayList<int[]> aux = new ArrayList<int[]>();
         String textoBinario = "";
+
+        //[a,s,b,a,c, ,a, , ]
+
         for (Character character : lista) {
             int n = character.charValue(); //obtengo el valor en ascii del caracter
             String letra = Integer.toBinaryString(n); //pasa a binario el nro anterior
             int nCeros = Integer.parseInt(letra); //pasa a entero el string letra para luego poder agregarle los ceros necesarios
             textoBinario += (String.format("%08d",nCeros));
+
         }
-        /* Separa los bits para formar bytes
+        // Separa los bits para formar bytes
+
         int cadaN = 8;
         String separarCon = " ";
         textoBinario = textoBinario.replaceAll("(?s).{" + cadaN + "}(?!$)", "$0" + separarCon);
-        */
-        return textoBinario;
+
+        String[] lenguajesComoArreglo = textoBinario.split(" ");
+
+        int r;
+        for(String a: lenguajesComoArreglo){
+            for (r=0;r<8;r++){
+                info[r]=Character.getNumericValue(a.charAt(r));
+            }
+            aux.add(info.clone());
+        }
+        return aux;
     }
 
     /* ARREGLAR
@@ -112,6 +124,7 @@ public class Main{
     }
     */
 
+    /*
     public static void aAuxiliar(String ruta, String contenido) throws IOException{
         File auxiliar = new File(ruta);
 
@@ -123,7 +136,7 @@ public class Main{
         b_w_auxiliar = new BufferedWriter(w_auxiliar);
         b_w_auxiliar.write(contenido);
         b_w_auxiliar.close();
-    }
+    }*/
 
     //Funciones que nos serviran más adelante
 
@@ -188,7 +201,7 @@ public class Main{
                 //ArrayList<String> listaAux= new ArrayList<>();
                 String rutaAuxiliar = "src/com/company/auxiliar.txt";
 
-                String textoABinario;
+                ArrayList<int[]> textoABinario;
                 textoABinario = leerArchivo(rutaArchive); //se lee el archivo archive
 
                 /*
@@ -200,7 +213,7 @@ public class Main{
                 //System.out.println(sb.toString());
                 */
 
-                aAuxiliar(rutaAuxiliar, textoABinario); //escribimos en el archivo auxiliar el string sb(que es el arraylist lista)
+                //aAuxiliar(rutaAuxiliar, textoABinario); //escribimos en el archivo auxiliar el string sb(que es el arraylist lista)
 
                 break;
             }
@@ -320,10 +333,11 @@ public class Main{
 
 
 
+
     //info: arreglo de 4 248 8179 o 262126 bits de informacion
     //cant: tamaño del bloque 8 256 8192 o 262144
 
-    public int[] contruirHamming(int[] info,int cant){
+    public static int[] contruirHamming(int[] info, int cant){
 
         int [] ham = new int[cant];
         int j=0;
@@ -332,7 +346,7 @@ public class Main{
         //i: recorre el arreglo final
         //j: recorre el arreglo de informacion
 
-        for (int i=0;i<cant;i++){
+        for (int i=0;i<cant-1;i++){
             if(inCtrls(i+1)){
                 ham[i] = -1;
             }
@@ -341,6 +355,7 @@ public class Main{
                 j++;
             }
         }
+        ham[cant-1]=-2;
 
         ham = addcontrols(ham,cant-1);
 
@@ -353,7 +368,7 @@ public class Main{
 
     //recibe arreglo de 4 248 8179 o 262126 bits
 
-    public int[] addcontrols(int[] arr, int posMaxCtrl){ //7
+    public static int[] addcontrols(int[] arr, int posMaxCtrl){ //7
         int pos;
         int cont;
         int permacont;
@@ -407,7 +422,7 @@ public class Main{
     }
 
 
-    public boolean inCtrls(int numero){
+    public static boolean inCtrls(int numero){
         return Arrays.asList(ctrls).contains(numero);
     }
 
