@@ -3,65 +3,114 @@ package com.company;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Scanner;
 
 
 public class Main{
+
+    static File archive;
     static FileReader r_archive;
     static FileWriter w_auxiliar;
     static BufferedWriter b_w_auxiliar;
     static BufferedReader b_r_archive;
-    static ArrayList<Character> lista = new ArrayList<>();
+    static ArrayList<String> listaS = new ArrayList<>();
+    static ArrayList<Character> listaC = new ArrayList<>();
 
     int[] ctrls = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
-    
-    public static File leerArchivo(File archive){ //se lee la info que esta en el archivo archive
+
+    public static String leerArchivo(String rutaArchive){ //se lee la info que esta en el archivo archive
+        archive = new File(rutaArchive);
+        //StringBuffer sb_archive = new StringBuffer();
+        String texto = "";
+        String auxiliar = "";
+        int i = 0;
 
         try{
+            b_r_archive = new BufferedReader(new InputStreamReader(new FileInputStream(rutaArchive), "utf-8"));
+            //se usa el string buffer, inutstreamreader y fileinputstream ya que hay ciertos caracteres que no
+            //estan en ascii, y necesitamos codificarlos en codificacion UTF-8 sino nos traeran problemas.
 
-            r_archive = new FileReader(archive);
-            b_r_archive = new BufferedReader(r_archive);
-                
+            //r_archive = new FileReader(archive);
+            //b_r_archive = new BufferedReader(r_archive);
+
+                /*
                 int caracterL = r_archive.read();
-                
                 while(caracterL != -1){
                     char caracter = (char) caracterL;
-                    System.out.println(caracter);
-                    lista.add(caracter);
+                    //lista.add(caracter);
                     caracterL = r_archive.read(); //lee los demas caracteres
-                }
+                    texto += caracter;
+                }*/
+
+            while ((texto = b_r_archive.readLine()) != null){
+                //sb_archive.append(texto+"\n");
+                listaS.add(texto+"\n");
+                listaC = pasarCadaC(listaS); //pasamos lo que esta en listaS a una listaC que tiene caracteres, no strings
+                auxiliar = aBinario(listaC);
+
+            }
+
+            System.out.println("LA LISTAS DSP DEL WHILE ES:");
+            System.out.println(listaS);
+            System.out.println("LA LISTAC DSP DEL WHILE ES:");
+            System.out.println(listaC);
+            System.out.println("el texto en binario es:");
+            System.out.println(auxiliar);
 
             b_r_archive.close();
-            
-            System.out.println(lista);
 
-                
         }catch(IOException e){
-                System.out.println("El archivo no existe\n");
+            System.out.println("El archivo no existe\n");
         }
-        return null;
+        return auxiliar;
     }
 
-    //Se podria tambien pasar a la lista cada bit individualmente pero nos quedarian listas enormess
-
-    public static ArrayList<String> aBinario(ArrayList<Character> lista)throws IOException{
-        ArrayList<String> listaAuxiliar = new ArrayList<>();
-        for (Character caracter : lista) {
-            int nroAscii = caracter.charValue();
-            String n = Integer.toBinaryString(nroAscii);
-            listaAuxiliar.add(n);
+    public static ArrayList<Character> pasarCadaC(ArrayList<String> listaS){
+        int i = 0;
+        ArrayList<Character> lista = new ArrayList<>();
+        lista.clear();
+        for (String cadena : listaS) {
+            for(i = 0; i< cadena.length(); i++){
+                lista.add(cadena.charAt(i));
+            }
         }
-        System.out.println("Lista despues de aplicar aBinario:\n");
-        System.out.println(listaAuxiliar);
-        return listaAuxiliar;
+        System.out.println("la lista q devuelve pasacadac es:");
+        System.out.println(lista);
+        return lista;
     }
 
-    //Funcion extra por las dudas, se puede cambiar y adaptarla a nuestras necesidades mas adelante
+    public static String aBinario(ArrayList<Character> lista)throws IOException{
+        String textoBinario = "";
+        for (Character character : lista) {
+            int n = character.charValue(); //obtengo el valor en ascii del caracter
+            String letra = Integer.toBinaryString(n); //pasa a binario el nro anterior
+            int nCeros = Integer.parseInt(letra); //pasa a entero el string letra para luego poder agregarle los ceros necesarios
+            textoBinario += (String.format("%08d",nCeros));
+        }
+        /* Separa los bits para formar bytes
+        int cadaN = 8;
+        String separarCon = " ";
+        textoBinario = textoBinario.replaceAll("(?s).{" + cadaN + "}(?!$)", "$0" + separarCon);
+        */
+        return textoBinario;
+    }
+
+    /* ARREGLAR
+    public static String aDecimal(String cadena)throws IOException{
+        String decimal = "";
+        int n = Integer.parseInt(cadena,2); //paso a nro ascii
+        decimal += Integer.toBinaryString(n);
+        return decimal;
+    }
+    */
 
     public static void aAuxiliar(String ruta, String contenido) throws IOException{
         File auxiliar = new File(ruta);
@@ -74,7 +123,6 @@ public class Main{
         b_w_auxiliar = new BufferedWriter(w_auxiliar);
         b_w_auxiliar.write(contenido);
         b_w_auxiliar.close();
-
     }
 
     //Funciones que nos serviran más adelante
@@ -86,7 +134,7 @@ public class Main{
 
         String url = generarNombres(entrada, tipo, bloque); //cada archivo tiene un nombre diferente segun el tipo y la cant de bits que se toman por bloque
         String ruta = entrada.getParent()+"\\"+url;
-        File fileOutput = new File(ruta); 
+        File fileOutput = new File(ruta);
         try {
             if (fileOutput.createNewFile()) { //se crea el archivo con su debido nombre
                 System.out.println("Archivo creado: " + fileOutput.getName());
@@ -101,7 +149,7 @@ public class Main{
         }
         return fileOutput;
     }
-    
+
     public static String generarNombres(File entrada, int tipo, int bloque){
         //TIPO 0 -> HE ->Hamming con Error en Archivo
         //TIPO 1 -> DE ->Archivo Decodificado con Error sobre Archivo
@@ -119,7 +167,7 @@ public class Main{
         int select = 0;
         Scanner scan = new Scanner(System.in);
 
-	    System.out.println("MENU\n\n");
+        System.out.println("MENU\n\n");
         System.out.println("1- CARGAR UN ARCHIVO\n");
         System.out.println("2- PROTEGER ARCHIVO\n");
         System.out.println("3- INTRODUCIR ERRORES\n");
@@ -133,46 +181,26 @@ public class Main{
 
         switch (select){
 
-            //Deberia cambiar leerArchivo porque funciona bien pero lee tambien los saltos de linea y eso
-            //en realidad no se como seria, queria preguntartelo porque por ahi vos lo entendias mas
-            //pero no lo  cambie por las dudas. Es lo unico que funciona medio dudoso jajan´t
-
-            //ABRO ARCHIVO -> LEO ARCHIVO -> CADA UNO DE LOS CARACTERES EL ARCHIVO LO PONGO EN UN ARRAY LIST
-            //SERIA ALGO ASI: | H | O | L | A | _ | C | O | M | O | _ | E | S | T | A | S |
-            //LUEGO ESTA INFORMACION PODRIA PASARLA A BINARIO Y DEJARLA EN EL ARRAYLIST
-            //ENTONCES, POR EJ: | H | O | L | I | S | 
-            // | 1101000 | 1101111 | 1101100 | 1101001 | 1110011 |
-            // Hice una funcion que te pasa la info de un array list a string y la escribe en un archivo pero
-            //ni idea, la hice por que pinto. Se puede adaptar o cambiarla
-            //A continuacion deberiamos ir agarrando los bits de cada una de las posiciones del arraylist
-            // | 1101000 | ...... |
-            // Agarramos los 4 primeros y comenzamos hamming..
-            // _ _ 1 _ 1 0 1 
-            //Una vez que tenemos todo el hamming realizado, aplicamos los errores y mandamos a un archivo tipo 0
-            //Decodificamos el archivo CON el error y mandamos a un archivo tipo 1
-            //Decodificamos el archivo SIN el error y mandamos a un archivo tipo 2
-
-            //No quiero seguir programando porque quiero que veamos algunas cosas juntos, cuando puedas hablame
-            //y lo vemos
-
-            case 1:{                                                                                                                                                                                                                                               
+            case 1:{
                 select = 0;
                 System.out.println("CARGADO");
-                File archive = new File("src/com/company/archivo.txt");
-                ArrayList<String> listaAux= new ArrayList<>();
+                String rutaArchive = "src/com/company/archivo.txt";
+                //ArrayList<String> listaAux= new ArrayList<>();
                 String rutaAuxiliar = "src/com/company/auxiliar.txt";
 
-                leerArchivo(archive); //se lee el archivo archive
-                listaAux = aBinario(lista); //se pasa a binario el arraylist lista 
+                String textoABinario;
+                textoABinario = leerArchivo(rutaArchive); //se lee el archivo archive
 
+                /*
                 StringBuilder sb = new StringBuilder(); //Pasamos la lista a string
                 for(String s : listaAux){
                     sb.append(s);
                     sb.append("\t");
                 }
                 //System.out.println(sb.toString());
+                */
 
-                aAuxiliar(rutaAuxiliar, sb.toString()); //escribimos en el archivo auxiliar el string sb(que es el arraylist lista)
+                aAuxiliar(rutaAuxiliar, textoABinario); //escribimos en el archivo auxiliar el string sb(que es el arraylist lista)
 
                 break;
             }
@@ -228,18 +256,12 @@ public class Main{
         }
 
     }
-
-
-
-
-
 /*
     public void addcontrol3(int[] arr){
         int cont = 4;
         int ctrol = 3;
         int pos; //15 = tope-1
         int aux = 0;
-
         for(pos = 14;ctrol < pos;pos--) {
             aux =+ arr[pos];
             cont--;
@@ -248,7 +270,6 @@ public class Main{
                 cont=4;
             }
         }
-
         if (aux % 2 == 0){
             arr[pos] = 0;
         }
@@ -256,13 +277,11 @@ public class Main{
             arr[pos]=1;
         }
     }
-
     public void addcontrol2(int[] arr){
         int cont = 2;
         int ctrol = 1;
         int pos; //15 = tope-1
         int aux = 0;
-
         for(pos = 14;ctrol < pos;pos--) {
             aux =+ arr[pos];
             cont--;
@@ -271,7 +290,6 @@ public class Main{
                 cont=2;
             }
         }
-
         if (aux % 2 == 0){
             arr[pos]=0;
         }
@@ -279,15 +297,11 @@ public class Main{
             arr[pos]=1;
         }
     }
-
-
     public void addcontrol1(int[] arr){
         int cont = 1;
         int ctrol = 0;
         int aux = 0;
         int pos; //15 = tope-1
-
-
         for(pos = 14;ctrol < pos;pos--) {
             aux =+ arr[pos];
             cont--;
@@ -296,7 +310,6 @@ public class Main{
                 cont=1;
             }
         }
-
         if (aux % 2 == 0){
             arr[pos] = 0;
         }
@@ -378,19 +391,32 @@ public class Main{
     }
 
 
+    //cant: tamaño del bloque 8 256 8192 o 262144
+    public int[] adderror(int[] arr, int cant){
 
+        Random random = new Random();
+        int posErr = random.nextInt(cant-1+0)+0;
 
-
+        if(arr[posErr]==0){
+            arr[posErr]=1;
+        }
+        else{
+            arr[posErr]=0;
+        }
+        return arr;
+    }
 
 
     public boolean inCtrls(int numero){
         return Arrays.asList(ctrls).contains(numero);
     }
 
-
-
-    
 }
+
+
+
+
+
 
 
 
