@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -24,9 +25,10 @@ public class Main{
     static ArrayList<String> listaS = new ArrayList<>();
     static ArrayList<Character> listaC = new ArrayList<>();
 
+
     static int[] ctrls = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
 
-    public static ArrayList leerArchivo(String rutaArchive){ //se lee la info que esta en el archivo archive
+    public static ArrayList leerArchivo(String rutaArchive) throws IOException { //se lee la info que esta en el archivo archive
         archive = new File(rutaArchive);
         //StringBuffer sb_archive = new StringBuffer();
         String texto = "";
@@ -37,8 +39,10 @@ public class Main{
 
 
 
-        int i = 0;
+        //aAuxiliar("src/com/company/auxiliar.txt", new int[]{0, 1, 0, 0, 1, 0, 0, 0});
 
+
+        int i = 0;
         try{
             b_r_archive = new BufferedReader(new InputStreamReader(new FileInputStream(rutaArchive), "utf-8"));
             while ((texto = b_r_archive.readLine()) != null){
@@ -49,13 +53,13 @@ public class Main{
 
                 //hamming 8
 
-                for (int[] d:auxiliar){
+                /*for (int[] d:auxiliar){
                     for(int j=0;j<4;j++){
                         datosdeCuatro[j]=d[j];
                     }
                     //[0,0,1,0,1,1,1,-2]
                     buf_salida = contruirHamming(datosdeCuatro,8);
-                }
+                }*/
 
 
             }//new line
@@ -68,6 +72,73 @@ public class Main{
         }
         return auxiliar;
     }
+
+
+    public void inicio() throws IOException {
+
+        int[] hamming = new int[8];
+        int[] buffer_salida = new int[8];
+
+        //INICIALIZACION
+        //TOMAR PRIMER RENGLON
+        //VACIAR LOS BUFFER
+
+
+        //while(mientras queden renglones, o la lista no este vacia)
+
+            if (contains(buffer_salida,-2)){
+                //completarla con lo necesesario para exportar
+                if(distinto(hamming,-2)){
+                    //mientras tenga datos y el buffer no este lleno, pasar a buffer
+                }else{
+                    //if(tengo datos)
+                        //aplicar haaming a datos
+                    //else
+                        //actualizar DATOS para hamming
+                }
+
+            }else {
+                aAuxiliar("src/com/company/hamming.txt",buffer_salida);
+                Arrays.fill(buffer_salida,-2);
+            }
+
+
+
+            //lista vacia o lista con elementos
+            //buffer listo para salir, o necesita datos
+            //no quedan renglones para leer
+
+    }
+
+    public void init(){}
+
+    public void actualizarLista(){}
+    public void actualizarDatos(){}
+
+
+
+    public static void aAuxiliar(String ruta, int[] contenido) throws IOException{
+        File auxiliar = new File(ruta);
+        String local="";
+
+        if (!auxiliar.exists()) {
+            auxiliar.createNewFile();
+        }
+
+        for (int c: contenido){
+            local+=(char)(c +'0');
+        }
+        w_auxiliar = new FileWriter(auxiliar);
+        b_w_auxiliar = new BufferedWriter(w_auxiliar);
+        b_w_auxiliar.write(aDecimal(local));
+        b_w_auxiliar.close();
+    }
+
+    public static char aDecimal(String cadena)throws IOException{
+        return (char)Integer.parseInt(cadena,2); //paso a nro ascii
+    }
+
+
 
     public static ArrayList<Character> pasarCadaC(ArrayList<String> listaS){
         int i = 0;
@@ -115,28 +186,9 @@ public class Main{
         return aux;
     }
 
-    /* ARREGLAR
-    public static String aDecimal(String cadena)throws IOException{
-        String decimal = "";
-        int n = Integer.parseInt(cadena,2); //paso a nro ascii
-        decimal += Integer.toBinaryString(n);
-        return decimal;
-    }
-    */
 
-    /*
-    public static void aAuxiliar(String ruta, String contenido) throws IOException{
-        File auxiliar = new File(ruta);
 
-        if (!auxiliar.exists()) {
-            auxiliar.createNewFile();
-        }
 
-        w_auxiliar = new FileWriter(auxiliar);
-        b_w_auxiliar = new BufferedWriter(w_auxiliar);
-        b_w_auxiliar.write(contenido);
-        b_w_auxiliar.close();
-    }*/
 
     //Funciones que nos serviran más adelante
 
@@ -424,6 +476,12 @@ public class Main{
 
     public static boolean inCtrls(int numero){
         return Arrays.asList(ctrls).contains(numero);
+    }
+    public static boolean contains(final int[] arr, final int key) {
+        return Arrays.stream(arr).anyMatch(i -> i == key);
+    }
+    public static boolean distinto(final int[] arr, final int key){
+            return Arrays.stream(arr).anyMatch(i -> i != key);
     }
 
 }
