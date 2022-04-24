@@ -33,15 +33,6 @@ public class Main{
         //StringBuffer sb_archive = new StringBuffer();
         String texto = "";
         ArrayList<int[]> auxiliar = new ArrayList<int[]>();
-
-        int[] buf_salida = new int[8];
-        int[] datosdeCuatro = new int[4];
-
-
-
-        //aAuxiliar("src/com/company/auxiliar.txt", new int[]{0, 1, 0, 0, 1, 0, 0, 0});
-
-
         int i = 0;
         try{
             b_r_archive = new BufferedReader(new InputStreamReader(new FileInputStream(rutaArchive), "utf-8"));
@@ -51,20 +42,7 @@ public class Main{
                 listaC = pasarCadaC(listaS); //pasamos lo que esta en listas a una listaC que tiene caracteres, no strings
                 auxiliar =aBinario(listaC);
 
-                //hamming 8
-
-                /*for (int[] d:auxiliar){
-                    for(int j=0;j<4;j++){
-                        datosdeCuatro[j]=d[j];
-                    }
-                    //[0,0,1,0,1,1,1,-2]
-                    buf_salida = contruirHamming(datosdeCuatro,8);
-                }*/
-
-
             }//new line
-
-
             b_r_archive.close();
 
         }catch(IOException e){
@@ -101,13 +79,9 @@ public class Main{
                 aAuxiliar("src/com/company/hamming.txt",buffer_salida);
                 Arrays.fill(buffer_salida,-2);
             }
-
-
-
             //lista vacia o lista con elementos
             //buffer listo para salir, o necesita datos
             //no quedan renglones para leer
-
     }
 
     public void init(){}
