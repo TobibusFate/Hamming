@@ -1,13 +1,6 @@
 package com.company;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -31,6 +24,10 @@ public class Main{
 
         int[] hamming = new int[8];             //ultimo hamming realizado
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
+
+        //int[] buffer_salida_error = new int[8];
+        //int[] hamming_error = new int[8];
+
         int[] info = new int[8];                //datos de caracter sin hamming pendientes
 
         ArrayList<int[]> lista_Renglon = new ArrayList<int[]>();    //renglon
@@ -47,21 +44,31 @@ public class Main{
 
         listaStrings = leerArchivo(rutaDeArchivo);
 
-
-        System.out.println("A");
-
+        while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){ //mientras quede info que procesar
             while (contains(buffer_salida,-2)){ //mientras el buffer no este listo para salir
-
                 if(distinto(hamming,-2)) {      //si tengo datos para agregar
-                    buffer_salida[indexBuffer] = hamming[indexHamming];
-                    hamming[indexHamming]=-2;
-                    indexBuffer++;
-                    indexHamming++;
-                }
 
+
+                    /*if(indexHamming==8||indexBuffer==8){
+                        System.out.println("hamming:"+indexHamming+"\nbuffer:"+indexBuffer );
+                    }*/
+
+                    buffer_salida[indexBuffer] = hamming[indexHamming];
+                    //buffer_salida_error[indexBuffer]=hamming_error[indexHamming];
+                    hamming[indexHamming]=-2;
+                    //hamming_error[indexHamming]=-2;
+
+                    indexHamming++;
+                    indexBuffer++;
+
+                }
                 else{   //si necesito hamminizar algo
                     if(distinto(info,-2)){          //si tengo Info pendiente para hacer hamming
                         hamming = contruirHamming(recorreArreglo(info,4),3);
+                        //hamming_error = adderror(hamming,3);
+
+                        indexHamming=0;
+                        //haming_error
                     }
                     else{                               //si necesito info para hacer hamming
                         if(lista_Renglon.isEmpty()){
@@ -78,9 +85,21 @@ public class Main{
                     }
                 }
             }
+            if(distinto(buffer_salida,-2)&&(!distinto(hamming,-2)&&lista_Renglon.isEmpty()&&listaStrings.isEmpty())){
+                //a buffer de salida lo completo con 0
+                for(int index=0;index<buffer_salida.length;index++){
+                    if (buffer_salida[index]==-2){
+                        buffer_salida[index]=0;
+                    }
+                }
+            }
 
-            aAuxiliar("src/com/company/hamming.txt",buffer_salida);
+            aAuxiliar("src/com/company/hamming8.txt",buffer_salida);
+            //aAuxiliar("src/com/company/hamming8_error.txt",buffer_salida_error);
             Arrays.fill(buffer_salida,-2);
+            //Arrays.fill(buffer_salida_error,-2);
+            indexBuffer=0;
+        }
     }
 
 
@@ -146,7 +165,7 @@ public class Main{
         for (int c: contenido){
             local+=(char)(c +'0');
         }
-        w_auxiliar = new FileWriter(auxiliar);
+        w_auxiliar = new FileWriter(auxiliar.getAbsoluteFile(),true);
         b_w_auxiliar = new BufferedWriter(w_auxiliar);
         b_w_auxiliar.write(aDecimal(local));
         b_w_auxiliar.close();
@@ -156,7 +175,6 @@ public class Main{
         return (char)Integer.parseInt(cadena,2); //paso a nro ascii
     }
 
-    //{hola que tal, como te va, todas las cosas}
 
     public static ArrayList<Character> pasarCadaC(String cadena){
         int i;
@@ -267,6 +285,7 @@ public class Main{
                 System.out.println("CARGADO");
                 String rutaArchive = "src/com/company/archivo.txt";
                 String rutaSalida = "src/com/company/hamming.txt";
+
                 inicio(rutaArchive,rutaSalida);
 
 
@@ -393,7 +412,7 @@ public class Main{
 
 
     //info: arreglo de 4 248 8179 o 262126 bits de informacion
-    //cant: tamaño del bloque 8 256 8192 o 262144
+    //cant: 3 8 13 18
 
     public static int[] contruirHamming(int[] info, int cant){
 
@@ -429,8 +448,9 @@ public class Main{
 
 
     //recibe arreglo de 4 248 8179 o 262126 bits
+   //posInCtrol //3//8//13//18
 
-    public static int[] addcontrols(int[] arr, int posInCtrol) { //3//8//13//18
+    public static int[] addcontrols(int[] arr, int posInCtrol) {
 
         int posicionArreglo;
         int contadorDeRecoleccion;
@@ -441,7 +461,7 @@ public class Main{
 
 
         //int[] ctrls               {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
-        //int[] ctrolInCrols         0 1 2 3 4  5  6   7   8   9   10   11   12   13   14   15     16     17     18
+//cant  //int[] ctrolInCrols         0 1 2 3 4  5  6   7   8   9   10   11   12   13   14   15     16     17     18
         //int[] ctrolInArreglo       0 1 3 7 15 31 63 127 255 511,1023,2047,4095,8191,16383,32767,65535,131071,262143
 
 
@@ -477,18 +497,20 @@ public class Main{
                 arr[posicionArreglo] = 1;
             }
         }
-
-
         return arr;
     }
 
 
-    //cant: tamaño del bloque 8 256 8192 o 262144
-        /*
-    public int[] adderror(int[] arr,int cant){
+          //int[] ctrls               {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
+    //cant//int[] ctrolInCrols         0 1 2 3 4  5  6   7   8   9   10   11   12   13   14   15     16     17     18
+          //int[] ctrolInArreglo       0 1 3 7 15 31 63 127 255 511,1023,2047,4095,8191,16383,32767,65535,131071,262143
 
+    //cant: 3 8 13 18
+    public static int[] adderror(int[] arr,int cant){
+        int tope =(ctrls[cant]-2);
         Random random = new Random();
-        int posErr = random.nextInt(cant-1+0)+0;
+
+        int posErr = random.nextInt(tope+1);
 
         if(arr[posErr]==0){
             arr[posErr]=1;
@@ -497,7 +519,7 @@ public class Main{
             arr[posErr]=0;
         }
         return arr;
-    }*/
+    }
 
 
     //static int[] ctrls = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
