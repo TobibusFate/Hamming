@@ -25,8 +25,9 @@ public class Main{
         int[] hamming = new int[8];             //ultimo hamming realizado
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
 
-        //int[] buffer_salida_error = new int[8];
-        //int[] hamming_error = new int[8];
+        int[] buffer_salida_error = new int[8];
+        int[] hamming_error = new int[8];
+        Random random =new Random();
 
         int[] info = new int[8];                //datos de caracter sin hamming pendientes
 
@@ -54,9 +55,9 @@ public class Main{
                     }*/
 
                     buffer_salida[indexBuffer] = hamming[indexHamming];
-                    //buffer_salida_error[indexBuffer]=hamming_error[indexHamming];
+                    buffer_salida_error[indexBuffer]=hamming_error[indexHamming];
                     hamming[indexHamming]=-2;
-                    //hamming_error[indexHamming]=-2;
+                    hamming_error[indexHamming]=-2;
 
                     indexHamming++;
                     indexBuffer++;
@@ -65,8 +66,11 @@ public class Main{
                 else{   //si necesito hamminizar algo
                     if(distinto(info,-2)){          //si tengo Info pendiente para hacer hamming
                         hamming = contruirHamming(recorreArreglo(info,4),3);
-                        //hamming_error = adderror(hamming,3);
-
+                        if(random.nextBoolean()){
+                            hamming_error = adderror(hamming,3);
+                        }else{
+                            hamming_error = hamming;
+                        }
                         indexHamming=0;
                         //haming_error
                     }
@@ -91,13 +95,16 @@ public class Main{
                     if (buffer_salida[index]==-2){
                         buffer_salida[index]=0;
                     }
+                    if (buffer_salida_error[index]==-2){
+                        buffer_salida_error[index]=0;
+                    }
                 }
             }
 
             aAuxiliar("src/com/company/hamming8.txt",buffer_salida);
-            //aAuxiliar("src/com/company/hamming8_error.txt",buffer_salida_error);
+            aAuxiliar("src/com/company/hamming8_error.txt",buffer_salida_error);
             Arrays.fill(buffer_salida,-2);
-            //Arrays.fill(buffer_salida_error,-2);
+            Arrays.fill(buffer_salida_error,-2);
             indexBuffer=0;
         }
     }
@@ -285,6 +292,24 @@ public class Main{
                 System.out.println("CARGADO");
                 String rutaArchive = "src/com/company/archivo.txt";
                 String rutaSalida = "src/com/company/hamming.txt";
+
+                /*
+                Random random = new Random();
+                int cont_true=0;
+                int cont_false=0;
+
+                for (int r=0;r<40000;r++){
+                    if (random.nextBoolean()){
+                        System.out.println("true");
+                        cont_true++;
+                    }
+                    else {
+                        System.out.println("false");
+                        cont_false++;
+                    }
+                }
+                System.out.println("true----->"+cont_true);
+                System.out.println("false---->"+cont_false);*/
 
                 inicio(rutaArchive,rutaSalida);
 
@@ -509,16 +534,17 @@ public class Main{
     public static int[] adderror(int[] arr,int cant){
         int tope =(ctrls[cant]-2);
         Random random = new Random();
-
+        int[]local;
+        local=arr.clone();
         int posErr = random.nextInt(tope+1);
 
-        if(arr[posErr]==0){
-            arr[posErr]=1;
+        if(local[posErr]==0){
+            local[posErr]=1;
         }
         else{
-            arr[posErr]=0;
+            local[posErr]=0;
         }
-        return arr;
+        return local;
     }
 
 
