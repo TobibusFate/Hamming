@@ -9,10 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class Main{
@@ -27,68 +24,115 @@ public class Main{
 
 
     static int[] ctrls = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
+    static int[] ctrolInCrols ={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+    static int[] ctrolInArreglo={0,1,3,7,15,31,63,127,255,511,1023,2047,4095,8191,16383,32767,65535,131071,262143};
+
+    public static void inicio(String rutaDeArchivo,String rutaSalida) throws IOException {
+
+        int[] hamming = new int[8];             //ultimo hamming realizado
+        int[] buffer_salida = new int[8];       //informacion pendiente para salir
+        int[] info = new int[8];                //datos de caracter sin hamming pendientes
+
+        ArrayList<int[]> lista_Renglon = new ArrayList<int[]>();    //renglon
+
+        ArrayList<String> listaStrings = new ArrayList<>();
+
+        Arrays.fill(hamming,-2);
+        Arrays.fill(buffer_salida,-2);
+        Arrays.fill(info,-2);
+
+        int indexBuffer = 0;
+        int indexHamming = 0;
+
+
+        listaStrings = leerArchivo(rutaDeArchivo);
+
+
+        System.out.println("A");
+
+            while (contains(buffer_salida,-2)){ //mientras el buffer no este listo para salir
+
+                if(distinto(hamming,-2)) {      //si tengo datos para agregar
+                    buffer_salida[indexBuffer] = hamming[indexHamming];
+                    hamming[indexHamming]=-2;
+                    indexBuffer++;
+                    indexHamming++;
+                }
+
+                else{   //si necesito hamminizar algo
+                    if(distinto(info,-2)){          //si tengo Info pendiente para hacer hamming
+                        hamming = contruirHamming(recorreArreglo(info,4),3);
+                    }
+                    else{                               //si necesito info para hacer hamming
+                        if(lista_Renglon.isEmpty()){
+                            if(!listaStrings.isEmpty()){
+                                lista_Renglon =actualizarLista(listaStrings);
+                            }else {
+                                System.out.println("SE TE VACIO LA LISTA PAPA");
+                                break;
+                            }
+                        }
+                        else {
+                            info = actualizarCaracter(lista_Renglon);
+                        }
+                    }
+                }
+            }
+
+            aAuxiliar("src/com/company/hamming.txt",buffer_salida);
+            Arrays.fill(buffer_salida,-2);
+    }
+
+
+
+
+    public static ArrayList<int[]> actualizarLista(ArrayList<String> listaString) throws IOException {
+        //pedir nuevo renglon
+        listaC = pasarCadaC(listaString.get(0)); //pasamos lo que esta en listas a una listaC que tiene caracteres, no strings
+        listaString.remove(0);
+        return aBinario(listaC);
+    }
+
+    public static int[] actualizarCaracter(ArrayList<int[]> lista){
+        //pedir nuevo caracter a lista renglon
+
+        int[] caracter = new int[8];
+        caracter = (lista.get(0)).clone();
+        lista.remove(0);
+        return caracter;
+    }
+
+    public static int[] recorreArreglo(int[] arreglo, int necesarios){
+        int[] aux = new int[necesarios];
+        int j=0;
+        for (int i=0;i<arreglo.length;i++){
+            if(arreglo[i]!=-2 && j<necesarios){
+                aux[j]=arreglo[i];
+                j++;
+                arreglo[i]=-2;
+            }
+        }
+        return aux;
+    }
 
     public static ArrayList leerArchivo(String rutaArchive) throws IOException { //se lee la info que esta en el archivo archive
         archive = new File(rutaArchive);
-        //StringBuffer sb_archive = new StringBuffer();
         String texto = "";
-        ArrayList<int[]> auxiliar = new ArrayList<int[]>();
-        int i = 0;
+
+        ArrayList<String> lis = new ArrayList<>();
         try{
             b_r_archive = new BufferedReader(new InputStreamReader(new FileInputStream(rutaArchive), "utf-8"));
             while ((texto = b_r_archive.readLine()) != null){
                 //sb_archive.append(texto+"\n");
-                listaS.add(texto+"\n");
-                listaC = pasarCadaC(listaS); //pasamos lo que esta en listas a una listaC que tiene caracteres, no strings
-                auxiliar =aBinario(listaC);
-
+                lis.add(texto+"\n");
             }//new line
-            b_r_archive.close();
 
+            b_r_archive.close();
         }catch(IOException e){
             System.out.println("El archivo no existe\n");
         }
-        return auxiliar;
+        return lis;
     }
-
-
-    public void inicio() throws IOException {
-
-        int[] hamming = new int[8];
-        int[] buffer_salida = new int[8];
-
-        //INICIALIZACION
-        //TOMAR PRIMER RENGLON
-        //VACIAR LOS BUFFER
-
-
-        //while(mientras queden renglones, o la lista no este vacia)
-
-            if (contains(buffer_salida,-2)){
-                //completarla con lo necesesario para exportar
-                if(distinto(hamming,-2)){
-                    //mientras tenga datos y el buffer no este lleno, pasar a buffer
-                }else{
-                    //if(tengo datos)
-                        //aplicar haaming a datos
-                    //else
-                        //actualizar DATOS para hamming
-                }
-
-            }else {
-                aAuxiliar("src/com/company/hamming.txt",buffer_salida);
-                Arrays.fill(buffer_salida,-2);
-            }
-            //lista vacia o lista con elementos
-            //buffer listo para salir, o necesita datos
-            //no quedan renglones para leer
-    }
-
-    public void init(){}
-
-    public void actualizarLista(){}
-    public void actualizarDatos(){}
-
 
 
     public static void aAuxiliar(String ruta, int[] contenido) throws IOException{
@@ -112,19 +156,19 @@ public class Main{
         return (char)Integer.parseInt(cadena,2); //paso a nro ascii
     }
 
+    //{hola que tal, como te va, todas las cosas}
 
-
-    public static ArrayList<Character> pasarCadaC(ArrayList<String> listaS){
-        int i = 0;
+    public static ArrayList<Character> pasarCadaC(String cadena){
+        int i;
         ArrayList<Character> lista = new ArrayList<>();
-        lista.clear();
-        for (String cadena : listaS) {
+        /*for (String cadena : listaS) {
             for(i = 0; i< cadena.length(); i++){
                 lista.add(cadena.charAt(i));
             }
+        }*/
+        for(i = 0; i< cadena.length(); i++){
+            lista.add(cadena.charAt(i));
         }
-        System.out.println("la lista q devuelve pasacadac es:");
-        System.out.println(lista);
         return lista;
     }
 
@@ -132,8 +176,6 @@ public class Main{
         int[] info = new int[8];
         ArrayList<int[]> aux = new ArrayList<int[]>();
         String textoBinario = "";
-
-        //[a,s,b,a,c, ,a, , ]
 
         for (Character character : lista) {
             int n = character.charValue(); //obtengo el valor en ascii del caracter
@@ -224,20 +266,10 @@ public class Main{
                 select = 0;
                 System.out.println("CARGADO");
                 String rutaArchive = "src/com/company/archivo.txt";
-                //ArrayList<String> listaAux= new ArrayList<>();
-                String rutaAuxiliar = "src/com/company/auxiliar.txt";
+                String rutaSalida = "src/com/company/hamming.txt";
+                inicio(rutaArchive,rutaSalida);
 
-                ArrayList<int[]> textoABinario;
-                textoABinario = leerArchivo(rutaArchive); //se lee el archivo archive
 
-                /*
-                StringBuilder sb = new StringBuilder(); //Pasamos la lista a string
-                for(String s : listaAux){
-                    sb.append(s);
-                    sb.append("\t");
-                }
-                //System.out.println(sb.toString());
-                */
 
                 //aAuxiliar(rutaAuxiliar, textoABinario); //escribimos en el archivo auxiliar el string sb(que es el arraylist lista)
 
@@ -365,25 +397,29 @@ public class Main{
 
     public static int[] contruirHamming(int[] info, int cant){
 
-        int [] ham = new int[cant];
+        int [] ham = new int[ctrls[cant]];
         int j=0;
 
+        //[0,0,0,0]
 
         //i: recorre el arreglo final
         //j: recorre el arreglo de informacion
 
-        for (int i=0;i<cant-1;i++){
+        for (int i=0;i<ctrls[cant]-1;i++){
             if(inCtrls(i+1)){
                 ham[i] = -1;
             }
             else{
-                ham[i]=info[j];
-                j++;
+                if(j<info.length){
+                    ham[i]=info[j];
+                    j++;
+                }
+
             }
         }
-        ham[cant-1]=-2;
+        ham[ctrls[cant]-1]=-2;
 
-        ham = addcontrols(ham,cant-1);
+        ham = addcontrols(ham,cant);
 
         return ham;
 
@@ -394,46 +430,62 @@ public class Main{
 
     //recibe arreglo de 4 248 8179 o 262126 bits
 
-    public static int[] addcontrols(int[] arr, int posMaxCtrl){ //7
-        int pos;
-        int cont;
-        int permacont;
-        int posCtrol;
+    public static int[] addcontrols(int[] arr, int posInCtrol) { //3//8//13//18
 
-        //int[] ctrls = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
-        //               0 1 2 3 4  5  6   7   8   9   10   11   12   13   14   15     16     17     18
-        //               0 1 3 7 15 31 63 127 255 511
+        int posicionArreglo;
+        int contadorDeRecoleccion;
+        int contFijo;                                   //valor que reinicia contadorDeRecoleccion
+
+        int posCtrol;   //posicion donde colocar el control
+        int tope = ((ctrls[posInCtrol]) - 2);           //ultima posicion de informacion
 
 
-        for (int k = posMaxCtrl;0<=k;k--){
-            int aux = 0;
-            cont = ctrls[posMaxCtrl];
-            permacont = ctrls[posMaxCtrl];
-            posCtrol =  ctrls[posMaxCtrl]-1;
+        //int[] ctrls               {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
+        //int[] ctrolInCrols         0 1 2 3 4  5  6   7   8   9   10   11   12   13   14   15     16     17     18
+        //int[] ctrolInArreglo       0 1 3 7 15 31 63 127 255 511,1023,2047,4095,8191,16383,32767,65535,131071,262143
 
-            for (pos = ((arr.length)-1); posCtrol < pos; pos--){
-                aux =+ arr[pos];
-                cont--;
 
-                if(cont == 0){
-                    pos= pos - permacont;
-                    cont = permacont;
+        //   [-1,-1,0,-1,1,1,0,-2]
+        //    0  1  2  3 4 5 6  7
+
+
+        //3 //8  //13  //18
+        //3//127//4095//131071
+
+        //7
+
+        int acumulador;
+        for (int p = posInCtrol - 1; 0 <= p; p--) {
+            posCtrol = ctrolInArreglo[p];
+            acumulador = 0;
+
+            contFijo = ctrls[p];
+            contadorDeRecoleccion = contFijo;
+
+            for (posicionArreglo = tope; posCtrol < posicionArreglo; posicionArreglo--) {
+                acumulador = +arr[posicionArreglo];
+                contadorDeRecoleccion--;
+
+                if (contadorDeRecoleccion == 0) {
+                    posicionArreglo = posicionArreglo - contFijo;
+                    contadorDeRecoleccion = contFijo;
                 }
             }
-
-            if(aux % 2 == 0){
-                arr[pos] = 0;
-            }
-            else{
-                arr[pos] = 1;
+            if (acumulador % 2 == 0) {
+                arr[posicionArreglo] = 0;
+            } else {
+                arr[posicionArreglo] = 1;
             }
         }
+
+
         return arr;
     }
 
 
     //cant: tamaño del bloque 8 256 8192 o 262144
-    public int[] adderror(int[] arr, int cant){
+        /*
+    public int[] adderror(int[] arr,int cant){
 
         Random random = new Random();
         int posErr = random.nextInt(cant-1+0)+0;
@@ -445,11 +497,13 @@ public class Main{
             arr[posErr]=0;
         }
         return arr;
-    }
+    }*/
 
+
+    //static int[] ctrls = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
 
     public static boolean inCtrls(int numero){
-        return Arrays.asList(ctrls).contains(numero);
+        return Arrays.stream(ctrls).anyMatch(i -> i == numero);
     }
     public static boolean contains(final int[] arr, final int key) {
         return Arrays.stream(arr).anyMatch(i -> i == key);
