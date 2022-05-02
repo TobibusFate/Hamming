@@ -20,7 +20,7 @@ public class Main{
     static int[] ctrolInCrols ={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
     static int[] ctrolInArreglo={0,1,3,7,15,31,63,127,255,511,1023,2047,4095,8191,16383,32767,65535,131071,262143};
 
-    public static void inicio(String rutaDeArchivo,String rutaSalida) throws IOException {
+    public static void inicio(String rutaDeArchivo,String rutaSalida,String rutaSalidaError) throws IOException {
 
         int[] hamming = new int[8];             //ultimo hamming realizado
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
@@ -46,7 +46,8 @@ public class Main{
         listaStrings = leerArchivo(rutaDeArchivo);
 
         while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){ //mientras quede info que procesar
-            while (contains(buffer_salida,-2)){ //mientras el buffer no este listo para salir
+            while (contains(buffer_salida,-2)){//mientras el buffer no este listo para salir
+
                 if(distinto(hamming,-2)) {      //si tengo datos para agregar
 
 
@@ -101,14 +102,191 @@ public class Main{
                 }
             }
 
-            aAuxiliar("src/com/company/hamming8.txt",buffer_salida);
-            aAuxiliar("src/com/company/hamming8_error.txt",buffer_salida_error);
+            aAuxiliar(rutaSalida,buffer_salida);
+            aAuxiliar(rutaSalidaError,buffer_salida_error);
             Arrays.fill(buffer_salida,-2);
             Arrays.fill(buffer_salida_error,-2);
             indexBuffer=0;
         }
     }
 
+    public static void fin(String rutaDeArchivo,String rutaSalida,String rutaSalidaError) throws IOException {
+        int[] buffer_salida = new int[8];       //informacion pendiente para salir
+
+        int[] info = new int[4];                //info sin hamming
+
+        int[] caracter = new int[8];            // para decodificar
+        int[] paraDecodificar = new int[8];            // para decodificar
+
+        ArrayList<int[]> lista_Renglon = new ArrayList<int[]>();    //renglon
+
+        ArrayList<String> listaStrings = new ArrayList<>();
+
+        Arrays.fill(caracter,-2);
+        Arrays.fill(buffer_salida,-2);
+        Arrays.fill(info,-2);
+        Arrays.fill(paraDecodificar,-2);
+
+
+        listaStrings = leerArchivo(rutaDeArchivo);
+
+
+        //while (quede informacion para decoficar){
+        //  while (contains(buffer_salida,-2)){
+        //      if (distinto(hamming,-2)){
+        //          //pasar datos a buffer
+        //      }else{
+        //          if (ParaDecodificar no tiene -2)
+        //              decodifico
+        //          else{
+        //              if(caracter tiene algo distinto de -2)
+        //                  usarlo para llenar decodificar
+        //
+        //              else{ pido un nuevo caraceter
+        //                  if(lista_Renglon.isEmpty()){
+        //                              if(!listaStrings.isEmpty()){
+        //                                    lista_Renglon =actualizarLista(listaStrings);
+        //                              }else {
+        //                                    System.out.println("SE TE VACIO LA LISTA PAPA");
+        //                                    break;
+        //                              }
+        //                           }
+        //                           else {
+        //                              info = actualizarCaracter(lista_Renglon);
+        //                           }
+        //              }
+        //          }
+        //
+        //      }
+        //
+        // }
+
+
+    }
+
+
+
+    public static void inicio256(String rutaDeArchivo,String rutaSalida,String rutaSalidaError, int tipo) throws IOException {
+
+        int[] buffer_salida = new int[8];       //informacion pendiente para salir
+        int[] info = new int[8];                //datos de caracter sin hamming pendientes
+
+        ArrayList<int[]> lista_Renglon = new ArrayList<>();    //renglon
+        Random random =new Random();
+        ArrayList<String> listaStrings;
+
+        int tamañoLocal;
+        if(tipo == 7){
+            //256
+            tamañoLocal = ctrls[tipo]-7-1;
+        }else if(tipo == 13){
+            //8k
+            tamañoLocal = ctrls[tipo]-13-1;
+        }
+        else {// Tipo == 18
+            //262k
+            tamañoLocal =ctrls[tipo]-18-1;
+        }
+
+        int[] hamming = new int[ctrls[tipo]];            //ultimo hamming realizado
+        int[] local = new int[tamañoLocal];              //tamaño-cantControles-1
+
+
+        /*
+        static int[] ctrls =        {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
+        static int[] ctrolInCrols = {0,1,2,3, 4, 5, 6,  7,  8,  9,  10,  11,  12,  13,   14,   15,   16,     17,   18};
+        static int[] ctrolInArreglo={0,1,3,7,15,31,63,127,255,511,1023,2047,4095,8191,16383,32767,65535,131071,262143};
+        */
+
+        //[c,c,0,c,0,1,0,c,0,1, 0, 1, 0, 1, 0,-2]
+        // c c 2 c 4 5 6 c 8 9 10 11 12 13 14 15
+
+        //int[] buffer_salida_error = new int[8];
+        //int[] hamming_error = new int[256];
+
+
+
+        //INICIALIZACION
+        Arrays.fill(hamming,-2);
+        Arrays.fill(buffer_salida,-2);
+        Arrays.fill(info,-2);
+        Arrays.fill(local,-2);
+
+        int indexBuffer = 0;
+        int indexHamming = 0;
+
+        listaStrings = leerArchivo(rutaDeArchivo);
+
+
+
+        while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){ //mientras quede info que procesar
+
+            while (contains(buffer_salida,-2)){ //mientras el buffer no este listo para salir
+                if(distinto(hamming,-2)) {      //si tengo datos para agregar
+
+                    buffer_salida[indexBuffer] = hamming[indexHamming];
+                    //buffer_salida_error[indexBuffer]=hamming_error[indexHamming];
+                    hamming[indexHamming]=-2;
+                    //hamming_error[indexHamming]=-2;
+
+                    indexHamming++;
+                    indexBuffer++;
+
+                }
+                else{   //si necesito hamminizar algo
+
+                    if(distinto(info,-2)){          //si tengo Info pendiente para hacer hamming
+                        if(contains(local,-2)){
+                            local = rellenaArreglo256omas(local,info,primerPosDeInfo(info));
+                        }
+                        else{
+                            hamming = contruirHamming(local,4);
+                            Arrays.fill(local,-2);
+                            indexHamming=0;
+                        }
+
+                        /*if(random.nextBoolean()){
+                            hamming_error = adderror(hamming,3);
+                        }else{
+                            hamming_error = hamming;
+                        }*/
+
+                        //haming_error
+                    }
+                    else{                               //si necesito info para hacer hamming
+                        if(lista_Renglon.isEmpty()){
+                            if(!listaStrings.isEmpty()){
+                                lista_Renglon = actualizarLista(listaStrings);
+                            }else {
+                                System.out.println("SE TE VACIO LA LISTA PAPA");
+                                break;
+                            }
+                        }
+                        else {
+                            info = actualizarCaracter(lista_Renglon);
+                        }
+                    }
+                }
+            }
+            if(distinto(buffer_salida,-2)&&(!distinto(hamming,-2)&&lista_Renglon.isEmpty()&&listaStrings.isEmpty())){
+                //a buffer de salida lo completo con 0
+                for(int index=0;index<buffer_salida.length;index++){
+                    if (buffer_salida[index]==-2){
+                        buffer_salida[index]=0;
+                    }
+                    /*if (buffer_salida_error[index]==-2){
+                        buffer_salida_error[index]=0;
+                    }*/
+                }
+            }
+
+            aAuxiliar(rutaSalida,buffer_salida);
+            //aAuxiliar(rutaSalidaError,buffer_salida_error);
+            Arrays.fill(buffer_salida,-2);
+            //Arrays.fill(buffer_salida_error,-2);
+            indexBuffer=0;
+        }
+    }
 
 
 
@@ -140,6 +318,39 @@ public class Main{
         }
         return aux;
     }
+
+    //[-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2....,-2]
+
+    //[1,1,1,1,1,0,0,1]
+
+    public static int[] rellenaArreglo256omas(int[] arreglo, int[] caracter,int primero){
+        int j=primero;//recorre caracter
+        //int[] loc =new int[248];
+       //loc=arreglo.clone();
+        //avanzar j en caracter antes del for
+
+        for (int i=0;i<arreglo.length;i++){
+            if(arreglo[i]==-2 && j < 8 && caracter[j]!=-2){
+                arreglo[i]=caracter[j];
+                caracter[j]=-2;
+                j++;
+            }
+        }
+        return arreglo;
+    }
+
+
+    public static int primerPosDeInfo(int[] info){
+        int i;
+        for (i=0;i<info.length;i++){
+            if(info[i]!=-2){
+                break;
+            }
+        }
+        return i;
+    }
+
+
 
     public static ArrayList leerArchivo(String rutaArchive) throws IOException { //se lee la info que esta en el archivo archive
         archive = new File(rutaArchive);
@@ -274,12 +485,9 @@ public class Main{
         Scanner scan = new Scanner(System.in);
 
         System.out.println("MENU\n\n");
-        System.out.println("1- CARGAR UN ARCHIVO\n");
-        System.out.println("2- PROTEGER ARCHIVO\n");
-        System.out.println("3- INTRODUCIR ERRORES\n");
-        System.out.println("4- DESPROTEGER ARCHIVO SIN CORREGIR\n");
-        System.out.println("5- DESPROTEGER ARCHIVO CORRIGIENDO\n");
-        System.out.println("6- SALIR\n");
+        System.out.println("1- CARGAR UN ARCHIVO PARA PROTEGER\n");
+        System.out.println("2- CARGAR UN ARCHIVO PARA DECODIFICAR\n");
+        System.out.println("3- SALIR\n");
 
         select = scan.nextInt();
 
@@ -288,37 +496,56 @@ public class Main{
         switch (select){
 
             case 1:{
-                select = 0;
-                System.out.println("CARGADO");
-                String rutaArchive = "src/com/company/archivo.txt";
-                String rutaSalida = "src/com/company/hamming.txt";
+                int select1 = 0;
+                System.out.println("MENU SELECCIONAR PROTECCION\n");
+                System.out.println("1- BLOQUE DE 8 bits\n");
+                System.out.println("2- BLOQUE DE 256 bits\n");
+                System.out.println("3- BLOQUE DE 8192 bits\n");
+                System.out.println("4- BLOQUE DE 262144 bits\n");
+                System.out.println("5- SALIR\n");
+                select1 = scan.nextInt();
 
-                /*
-                Random random = new Random();
-                int cont_true=0;
-                int cont_false=0;
-
-                for (int r=0;r<40000;r++){
-                    if (random.nextBoolean()){
-                        System.out.println("true");
-                        cont_true++;
+                switch (select1){
+                    case 1:{
+                        //AQUI HAGO EL 8
+                        String rutaArchive = "src/com/company/archivo.txt";
+                        String rutaSalida = "src/com/company/hamming8.txt";
+                        String rutaSalidaError = "src/com/company/hammingError8.txt";
+                        inicio(rutaArchive,rutaSalida,rutaSalidaError);
+                        break;
                     }
-                    else {
-                        System.out.println("false");
-                        cont_false++;
+                    case 2:{
+                        //AQUI HAGO EL 256
+                        String rutaArchive = "src/com/company/archivo.txt";
+                        String rutaSalida = "src/com/company/hamming256.txt";
+                        String rutaSalidaError = "src/com/company/hammingError256.txt";
+                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,7);
+                        break;
+                    }
+                    case 3:{
+                        //AQUI HAGO EL 8192
+                        String rutaArchive = "src/com/company/archivo.txt";
+                        String rutaSalida = "src/com/company/hamming8192.txt";
+                        String rutaSalidaError = "src/com/company/hammingError8192.txt";
+                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,13);
+                        break;
+                    }
+                    case 4:{
+                        //AQUI HAGO EL 262144
+                        String rutaArchive = "src/com/company/archivo.txt";
+                        String rutaSalida = "src/com/company/hamming262144.txt";
+                        String rutaSalidaError = "src/com/company/hammingError262144.txt";
+                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,18);
+                        break;
+                    }
+                    case 5:{
+                        System.out.println("salir");
+                        break;
                     }
                 }
-                System.out.println("true----->"+cont_true);
-                System.out.println("false---->"+cont_false);*/
-
-                inicio(rutaArchive,rutaSalida);
-
-
-
-                //aAuxiliar(rutaAuxiliar, textoABinario); //escribimos en el archivo auxiliar el string sb(que es el arraylist lista)
-
                 break;
             }
+
             case 2:{
                 int select1 = 0;
                 System.out.println("MENU SELECCIONAR PROTECCION\n");
@@ -354,17 +581,7 @@ public class Main{
             }
             case 3:{
                 select = 0;
-                System.out.println("COLOCAR ERROR");
-                break;
-            }
-            case 4:{
-                select = 0;
-                System.out.println("DESPROTEGIDO SIN CORREGIR");
-                break;
-            }
-            case 5:{
-                select = 0;
-                System.out.println("DESPROTEGIDO CORREGIDO");
+                System.out.println("SALIDA - GRACIAS POR USAR EL PROGRAMA");
                 break;
             }
 
@@ -489,6 +706,8 @@ public class Main{
 //cant  //int[] ctrolInCrols         0 1 2 3 4  5  6   7   8   9   10   11   12   13   14   15     16     17     18
         //int[] ctrolInArreglo       0 1 3 7 15 31 63 127 255 511,1023,2047,4095,8191,16383,32767,65535,131071,262143
 
+
+        //[0...255] //8controles
 
         //   [-1,-1,0,-1,1,1,0,-2]
         //    0  1  2  3 4 5 6  7
