@@ -103,7 +103,7 @@ public class Main{
             }
 
             aAuxiliar(rutaSalida,buffer_salida);
-            aAuxiliar(rutaSalidaError,buffer_salida_error);
+            //aAuxiliar(rutaSalidaError,buffer_salida_error);
             Arrays.fill(buffer_salida,-2);
             Arrays.fill(buffer_salida_error,-2);
             indexBuffer=0;
@@ -436,7 +436,8 @@ public class Main{
     }
 
     public static char aDecimal(String cadena)throws IOException{
-        return (char)Integer.parseInt(cadena,2); //paso a nro ascii
+        Integer a = Integer.parseInt(cadena,2); //paso a nro ascii
+        return (char) Integer.parseInt(cadena,2); //paso a nro ascii
     }
 
 
@@ -605,7 +606,7 @@ public class Main{
                 switch (select1){
                     case 1:{
                         System.out.println("8");
-                        String rutaArchive = "src/com/company/hammingError8.txt";
+                        String rutaArchive = "src/com/company/hamming8.txt";
                         String rutaSalida = "src/com/company/decodificacion8.txt";
                         fin(rutaArchive, rutaSalida);
                         break;
@@ -789,7 +790,7 @@ public class Main{
             contadorDeRecoleccion = contFijo;
 
             for (posicionArreglo = tope; posCtrol < posicionArreglo; posicionArreglo--) {
-                acumulador = +arr[posicionArreglo];
+                acumulador = acumulador + arr[posicionArreglo];
                 contadorDeRecoleccion--;
 
                 if (contadorDeRecoleccion == 0) {
