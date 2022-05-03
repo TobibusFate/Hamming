@@ -110,62 +110,8 @@ public class Main{
         }
     }
 
-    public static void fin(String rutaDeArchivo,String rutaSalida,String rutaSalidaError) throws IOException {
-        int[] buffer_salida = new int[8];       //informacion pendiente para salir
 
-        int[] info = new int[4];                //info sin hamming
-
-        int[] caracter = new int[8];            // para decodificar
-        int[] paraDecodificar = new int[8];            // para decodificar
-
-        ArrayList<int[]> lista_Renglon = new ArrayList<int[]>();    //renglon
-
-        ArrayList<String> listaStrings = new ArrayList<>();
-
-        Arrays.fill(caracter,-2);
-        Arrays.fill(buffer_salida,-2);
-        Arrays.fill(info,-2);
-        Arrays.fill(paraDecodificar,-2);
-
-
-        listaStrings = leerArchivo(rutaDeArchivo);
-
-
-        //while (quede informacion para decoficar){
-        //  while (contains(buffer_salida,-2)){
-        //      if (distinto(hamming,-2)){
-        //          //pasar datos a buffer
-        //      }else{
-        //          if (ParaDecodificar no tiene -2)
-        //              decodifico
-        //          else{
-        //              if(caracter tiene algo distinto de -2)
-        //                  usarlo para llenar decodificar
-        //
-        //              else{ pido un nuevo caraceter
-        //                  if(lista_Renglon.isEmpty()){
-        //                              if(!listaStrings.isEmpty()){
-        //                                    lista_Renglon =actualizarLista(listaStrings);
-        //                              }else {
-        //                                    System.out.println("SE TE VACIO LA LISTA PAPA");
-        //                                    break;
-        //                              }
-        //                           }
-        //                           else {
-        //                              info = actualizarCaracter(lista_Renglon);
-        //                           }
-        //              }
-        //          }
-        //
-        //      }
-        //
-        // }
-
-
-    }
-
-
-
+//8 13 18
     public static void inicio256(String rutaDeArchivo,String rutaSalida,String rutaSalidaError, int tipo) throws IOException {
 
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
@@ -176,9 +122,9 @@ public class Main{
         ArrayList<String> listaStrings;
 
         int tamañoLocal;
-        if(tipo == 7){
+        if(tipo == 8){
             //256
-            tamañoLocal = ctrls[tipo]-7-1;
+            tamañoLocal = ctrls[tipo]-8-1;
         }else if(tipo == 13){
             //8k
             tamañoLocal = ctrls[tipo]-13-1;
@@ -215,11 +161,11 @@ public class Main{
         int indexBuffer = 0;
         int indexHamming = 0;
 
+        boolean nomore = false;
+
         listaStrings = leerArchivo(rutaDeArchivo);
 
-
-
-        while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){ //mientras quede info que procesar
+        while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()||(distinto(info,-2) && nomore==false)){ //mientras quede info que procesar
 
             while (contains(buffer_salida,-2)){ //mientras el buffer no este listo para salir
                 if(distinto(hamming,-2)) {      //si tengo datos para agregar
@@ -233,14 +179,17 @@ public class Main{
                     indexBuffer++;
 
                 }
-                else{   //si necesito hamminizar algo
 
+                // info  = [-2,-2,-2,-2,0,0,0,0]
+                // local = [1,1,1,0,0,0,0,0,0,0,0,0,0,0,-2]
+
+                else{   //si necesito hamminizar algo
                     if(distinto(info,-2)){          //si tengo Info pendiente para hacer hamming
                         if(contains(local,-2)){
                             local = rellenaArreglo256omas(local,info,primerPosDeInfo(info));
                         }
                         else{
-                            hamming = contruirHamming(local,4);
+                            hamming = contruirHamming(local,tipo);
                             Arrays.fill(local,-2);
                             indexHamming=0;
                         }
@@ -258,6 +207,8 @@ public class Main{
                             if(!listaStrings.isEmpty()){
                                 lista_Renglon = actualizarLista(listaStrings);
                             }else {
+                                nomore=true;
+                                Arrays.fill(local,0);
                                 System.out.println("SE TE VACIO LA LISTA PAPA");
                                 break;
                             }
@@ -325,9 +276,6 @@ public class Main{
 
     public static int[] rellenaArreglo256omas(int[] arreglo, int[] caracter,int primero){
         int j=primero;//recorre caracter
-        //int[] loc =new int[248];
-       //loc=arreglo.clone();
-        //avanzar j en caracter antes del for
 
         for (int i=0;i<arreglo.length;i++){
             if(arreglo[i]==-2 && j < 8 && caracter[j]!=-2){
@@ -519,7 +467,7 @@ public class Main{
                         String rutaArchive = "src/com/company/archivo.txt";
                         String rutaSalida = "src/com/company/hamming256.txt";
                         String rutaSalidaError = "src/com/company/hammingError256.txt";
-                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,7);
+                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,8);
                         break;
                     }
                     case 3:{
@@ -655,6 +603,10 @@ public class Main{
 
     //info: arreglo de 4 248 8179 o 262126 bits de informacion
     //cant: 3 8 13 18
+
+    //int[] ctrls               {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
+//cant  //int[] ctrolInCrols     0 1 2 3 4  5  6   7   8   9   10   11   12   13   14   15     16     17     18
+    //int[] ctrolInArreglo       0 1 3 7 15 31 63 127 255 511,1023,2047,4095,8191,16383,32767,65535,131071,262143
 
     public static int[] contruirHamming(int[] info, int cant){
 
