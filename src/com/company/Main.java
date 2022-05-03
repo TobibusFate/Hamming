@@ -114,6 +114,7 @@ public class Main{
 //8 13 18
     public static void inicio256(String rutaDeArchivo,String rutaSalida,String rutaSalidaError, int tipo) throws IOException {
 
+
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
         int[] info = new int[8];                //datos de caracter sin hamming pendientes
 
@@ -121,6 +122,7 @@ public class Main{
         Random random =new Random();
         ArrayList<String> listaStrings;
 
+        System.out.println(random.nextBoolean());
         int tamañoLocal;
         if(tipo == 8){
             //256
@@ -162,10 +164,11 @@ public class Main{
         int indexHamming = 0;
 
         boolean nomore = false;
+        boolean last= false;
 
         listaStrings = leerArchivo(rutaDeArchivo);
 
-        while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()||(distinto(info,-2) && nomore==false)){ //mientras quede info que procesar
+        while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){ //mientras quede info que procesar
 
             while (contains(buffer_salida,-2)){ //mientras el buffer no este listo para salir
                 if(distinto(hamming,-2)) {      //si tengo datos para agregar
@@ -179,12 +182,10 @@ public class Main{
                     indexBuffer++;
 
                 }
-
                 // info  = [-2,-2,-2,-2,0,0,0,0]
                 // local = [1,1,1,0,0,0,0,0,0,0,0,0,0,0,-2]
-
                 else{   //si necesito hamminizar algo
-                    if(distinto(info,-2)){          //si tengo Info pendiente para hacer hamming
+                    if(distinto(info,-2)||last==true){          //si tengo Info pendiente para hacer hamming
                         if(contains(local,-2)){
                             local = rellenaArreglo256omas(local,info,primerPosDeInfo(info));
                         }
@@ -192,6 +193,7 @@ public class Main{
                             hamming = contruirHamming(local,tipo);
                             Arrays.fill(local,-2);
                             indexHamming=0;
+                            last=false;
                         }
 
                         /*if(random.nextBoolean()){
@@ -207,10 +209,14 @@ public class Main{
                             if(!listaStrings.isEmpty()){
                                 lista_Renglon = actualizarLista(listaStrings);
                             }else {
-                                nomore=true;
-                                Arrays.fill(local,0);
-                                System.out.println("SE TE VACIO LA LISTA PAPA");
-                                break;
+                                if(nomore==false){
+                                    nomore=true;
+                                    last=true;
+                                    rellenarCon0(local);
+                                }else{
+                                    System.out.println("SE TE VACIO LA LISTA PAPA");
+                                    break;
+                                }
                             }
                         }
                         else {
@@ -282,6 +288,16 @@ public class Main{
                 arreglo[i]=caracter[j];
                 caracter[j]=-2;
                 j++;
+            }
+        }
+        return arreglo;
+    }
+
+    public static int[] rellenarCon0(int[] arreglo){
+
+        for (int i=0;i<arreglo.length;i++){
+            if(arreglo[i]==-2){
+                arreglo[i]=0;
             }
         }
         return arreglo;
