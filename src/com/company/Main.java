@@ -2,6 +2,7 @@ package com.company;
 
 import java.io.*;
 import java.lang.reflect.Array;
+import java.security.cert.CertPathChecker;
 import java.util.*;
 
 
@@ -103,7 +104,7 @@ public class Main{
             }
 
             aAuxiliar(rutaSalida,buffer_salida);
-            //aAuxiliar(rutaSalidaError,buffer_salida_error);
+            aAuxiliar(rutaSalidaError,buffer_salida_error);
             Arrays.fill(buffer_salida,-2);
             Arrays.fill(buffer_salida_error,-2);
             indexBuffer=0;
@@ -114,7 +115,6 @@ public class Main{
 //8 13 18
     public static void inicio256(String rutaDeArchivo,String rutaSalida,String rutaSalidaError, int tipo) throws IOException {
 
-
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
         int[] info = new int[8];                //datos de caracter sin hamming pendientes
 
@@ -124,9 +124,9 @@ public class Main{
 
         System.out.println(random.nextBoolean());
         int tamañoLocal;
-        if(tipo == 8){
+        if(tipo == 4){
             //256
-            tamañoLocal = ctrls[tipo]-8-1;
+            tamañoLocal = ctrls[tipo]-4-1;
         }else if(tipo == 13){
             //8k
             tamañoLocal = ctrls[tipo]-13-1;
@@ -139,7 +139,6 @@ public class Main{
         int[] hamming = new int[ctrls[tipo]];            //ultimo hamming realizado
         int[] local = new int[tamañoLocal];              //tamaño-cantControles-1
 
-
         /*
         static int[] ctrls =        {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
         static int[] ctrolInCrols = {0,1,2,3, 4, 5, 6,  7,  8,  9,  10,  11,  12,  13,   14,   15,   16,     17,   18};
@@ -149,10 +148,8 @@ public class Main{
         //[c,c,0,c,0,1,0,c,0,1, 0, 1, 0, 1, 0,-2]
         // c c 2 c 4 5 6 c 8 9 10 11 12 13 14 15
 
-        //int[] buffer_salida_error = new int[8];
-        //int[] hamming_error = new int[256];
-
-
+        int[] buffer_salida_error = new int[8];
+        int[] hamming_error = new int[ctrls[tipo]];
 
         //INICIALIZACION
         Arrays.fill(hamming,-2);
@@ -174,9 +171,9 @@ public class Main{
                 if(distinto(hamming,-2)) {      //si tengo datos para agregar
 
                     buffer_salida[indexBuffer] = hamming[indexHamming];
-                    //buffer_salida_error[indexBuffer]=hamming_error[indexHamming];
+                    buffer_salida_error[indexBuffer]=hamming_error[indexHamming];
                     hamming[indexHamming]=-2;
-                    //hamming_error[indexHamming]=-2;
+                    hamming_error[indexHamming]=-2;
 
                     indexHamming++;
                     indexBuffer++;
@@ -196,11 +193,11 @@ public class Main{
                             last=false;
                         }
 
-                        /*if(random.nextBoolean()){
-                            hamming_error = adderror(hamming,3);
+                        if(random.nextBoolean()){
+                            hamming_error = adderror(hamming,tipo);
                         }else{
                             hamming_error = hamming;
-                        }*/
+                        }
 
                         //haming_error
                     }
@@ -231,23 +228,23 @@ public class Main{
                     if (buffer_salida[index]==-2){
                         buffer_salida[index]=0;
                     }
-                    /*if (buffer_salida_error[index]==-2){
+                    if (buffer_salida_error[index]==-2){
                         buffer_salida_error[index]=0;
-                    }*/
+                    }
                 }
             }
 
             aAuxiliar(rutaSalida,buffer_salida);
-            //aAuxiliar(rutaSalidaError,buffer_salida_error);
+            aAuxiliar(rutaSalidaError,buffer_salida_error);
             Arrays.fill(buffer_salida,-2);
-            //Arrays.fill(buffer_salida_error,-2);
+            Arrays.fill(buffer_salida_error,-2);
             indexBuffer=0;
         }
     }
 
 
     
-    public static void fin(String rutaDeArchivo,String rutaSalida) throws IOException {
+    public static void fin8(String rutaDeArchivo,String rutaSalida) throws IOException {
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
 
         int[] info = new int[4];                //info sin hamming
@@ -281,6 +278,91 @@ public class Main{
               }else{
                   if (!contains(paraDecodificar,-2)){ //decodifico
                       info = corregirHamming(paraDecodificar, 3);
+                      Arrays.fill(paraDecodificar,-2);
+                      indexInfo = 0;
+                  } else{
+                      if(distinto(caracter,-2)){ // usarlo para llenar decodificar
+                        paraDecodificar = recorreArregloAux(caracter, paraDecodificar, primerPosDeInfo(caracter));
+                      }else{ //pido un nuevo caraceter
+                            if(lista_Renglon.isEmpty()){
+                                if(!listaStrings.isEmpty()){
+                                    lista_Renglon = actualizarLista(listaStrings);
+                                }else {
+                                    System.out.println("SE TE VACIO LA LISTA PAPA");
+                                    break;
+                                }
+                            }else {
+                                   caracter = actualizarCaracter(lista_Renglon);
+                            }
+                      }
+              }
+            }
+        }
+        if(distinto(buffer_salida,-2)&&(!distinto(info,-2)&&lista_Renglon.isEmpty()&&listaStrings.isEmpty())){
+            //a buffer de salida lo completo con 0
+            for(int index=0;index<buffer_salida.length;index++){
+                if (buffer_salida[index]==-2){
+                    buffer_salida[index]=0;
+                }
+            }
+        }
+        aAuxiliar(rutaSalida,buffer_salida);
+        Arrays.fill(buffer_salida,-2);
+        indexBuffer=0;
+     }
+
+    }
+
+    public static void fin256(String rutaDeArchivo,String rutaSalida, int tipo) throws IOException {
+
+        int tamaño;
+        if(tipo == 4){
+            //256
+            tamaño = ctrls[tipo]-4-1;
+
+        }else if(tipo == 13){
+            //8k
+            tamaño = ctrls[tipo]-13-1;
+        }
+        else {// Tipo == 18
+            //262k
+            tamaño = ctrls[tipo]-18-1;
+        }
+
+        int[] buffer_salida = new int[8];       //informacion pendiente para salir
+
+        int[] info = new int[tamaño];
+
+        //ctrls[tipo]
+        int[] caracter = new int[ctrls[tipo]];            // para decodificar
+        int[] paraDecodificar = new int[tamaño];            // para decodificar
+
+        ArrayList<int[]> lista_Renglon = new ArrayList<int[]>();    //renglon
+
+        ArrayList<String> listaStrings = new ArrayList<>();
+
+        int indexBuffer = 0;
+        int indexInfo = 0;
+
+        Arrays.fill(caracter,-2);
+        Arrays.fill(buffer_salida,-2);
+        Arrays.fill(info,-2);
+        Arrays.fill(paraDecodificar,-2);
+
+        listaStrings = leerArchivo(rutaDeArchivo);
+
+        while (distinto(buffer_salida,-2)|| distinto(info,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){
+
+          while (contains(buffer_salida,-2)){ //pasar datos a buffer
+              if (distinto(info,-2)){
+                    buffer_salida[indexBuffer] = info[indexInfo];
+                    info[indexInfo]= -2;
+
+                    indexInfo++;
+                    indexBuffer++;
+              }else{
+                  if (!contains(paraDecodificar,-2)){ //decodifico
+                      info = corregirHamming(paraDecodificar, tipo);
                       Arrays.fill(paraDecodificar,-2);
                       indexInfo = 0;
                   } else{
@@ -385,7 +467,6 @@ public class Main{
         return arreglo;
     }
 
-
     public static int primerPosDeInfo(int[] info){
         int i;
         for (i=0;i<info.length;i++){
@@ -395,8 +476,6 @@ public class Main{
         }
         return i;
     }
-
-
 
     public static ArrayList leerArchivo(String rutaArchive) throws IOException { //se lee la info que esta en el archivo archive
         archive = new File(rutaArchive);
@@ -421,6 +500,8 @@ public class Main{
     public static void aAuxiliar(String ruta, int[] contenido) throws IOException{
         File auxiliar = new File(ruta);
         String local="";
+        char finString[] = new char[local.length()];
+        char aux[] = new char[8];
 
         if (!auxiliar.exists()) {
             auxiliar.createNewFile();
@@ -484,10 +565,6 @@ public class Main{
         }
         return aux;
     }
-
-
-
-
 
     //Funciones que nos serviran más adelante
 
@@ -566,7 +643,7 @@ public class Main{
                         String rutaArchive = "src/com/company/archivo.txt";
                         String rutaSalida = "src/com/company/hamming256.txt";
                         String rutaSalidaError = "src/com/company/hammingError256.txt";
-                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,8);
+                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,4);
                         break;
                     }
                     case 3:{
@@ -606,30 +683,30 @@ public class Main{
                 switch (select1){
                     case 1:{
                         System.out.println("8");
-                        String rutaArchive = "src/com/company/hamming8.txt";
+                        String rutaArchive = "src/com/company/hammingError8.txt";
                         String rutaSalida = "src/com/company/decodificacion8.txt";
-                        fin(rutaArchive, rutaSalida);
+                        fin8(rutaArchive, rutaSalida);
                         break;
                     }
                     case 2:{
                         System.out.println("256");
                         String rutaArchive = "src/com/company/hammingError256.txt";
                         String rutaSalida = "src/com/company/decodificacion256.txt";
-                        //fin(rutaArchive, rutaSalida);
+                        fin256(rutaArchive, rutaSalida, 4);
                         break;
                     }
                     case 3:{
                         System.out.println("8192");
                         String rutaArchive = "src/com/company/hammingError8192.txt";
                         String rutaSalida = "src/com/company/decodificacion8192.txt";
-                        //fin(rutaArchive, rutaSalida);
+                        fin256(rutaArchive, rutaSalida, 13);
                         break;
                     }
                     case 4:{
                         System.out.println("262144");
                         String rutaArchive = "src/com/company/hammingError262144.txt";
                         String rutaSalida = "src/com/company/decodificacion262144.txt";
-                        //fin(rutaArchive, rutaSalida);
+                        fin256(rutaArchive, rutaSalida, 18);
                         break;
                     }
                     case 5:{
@@ -837,7 +914,24 @@ public class Main{
         // es decir, si la info era: [1,0,0,0] y los bits de control son: c1 = 1, c2 = 0 y c3 = 1, tenemos 3 bits de control.
 		// Ahora tendremos que detectar el error y corregirlo, si es que hay uno.
 
-        int infoEntero[] = new int[4];
+        int tamañoLocal;
+        if(parity_count == 3){
+            tamañoLocal = ctrls[parity_count]-3-1;
+        }else{
+            if(parity_count == 8){
+                //256
+                tamañoLocal = ctrls[parity_count]-8-1;
+            }else if(parity_count == 13){
+                //8k
+                tamañoLocal = ctrls[parity_count]-13-1;
+            }
+            else {// Tipo == 18
+                //262k
+                tamañoLocal = ctrls[parity_count]-18-1;
+            }
+        }
+
+        int infoEntero[] = new int[tamañoLocal];
 		
 		int power; 
 		
