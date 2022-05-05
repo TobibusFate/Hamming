@@ -515,15 +515,13 @@ public class Main{
         b_w_auxiliar.close();
     }
 
-    public static char aDecimal(String cadena)throws IOException{
-
-        if (!cadena.equals("")){
-            return (char) Integer.parseInt(cadena,2); //paso a nro ascii
-        }else{
+    public static char aDecimal(String cadena) throws NumberFormatException{
+        if(cadena.equals("........")){
             char c = (char) 32;
             return c;
+        }else{
+            return (char) Integer.parseInt(cadena,2); //paso a nro ascii
         }
-
     }
 
 
@@ -702,7 +700,7 @@ public class Main{
                     }
                     case 3:{
                         System.out.println("8192");
-                        String rutaArchive = "src/com/company/hamming8192.txt";
+                        String rutaArchive = "src/com/company/hammingError8192.txt";
                         String rutaSalida = "src/com/company/decodificacion8192.txt";
                         fin256(rutaArchive, rutaSalida, 13);
                         break;
