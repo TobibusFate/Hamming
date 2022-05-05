@@ -53,7 +53,7 @@ public class Main{
 
 
                     /*if(indexHamming==8||indexBuffer==8){
-                        System.out.println("hamming:"+indexHamming+"\nbuffer:"+indexBuffer );
+
                     }*/
 
                     buffer_salida[indexBuffer] = hamming[indexHamming];
@@ -81,7 +81,6 @@ public class Main{
                             if(!listaStrings.isEmpty()){
                                 lista_Renglon =actualizarLista(listaStrings);
                             }else {
-                                System.out.println("SE TE VACIO LA LISTA PAPA");
                                 break;
                             }
                         }
@@ -122,11 +121,10 @@ public class Main{
         Random random =new Random();
         ArrayList<String> listaStrings;
 
-        System.out.println(random.nextBoolean());
         int tamañoLocal;
-        if(tipo == 4){
+        if(tipo == 8){
             //256
-            tamañoLocal = ctrls[tipo]-4-1;
+            tamañoLocal = ctrls[tipo]-8-1;
         }else if(tipo == 13){
             //8k
             tamañoLocal = ctrls[tipo]-13-1;
@@ -233,6 +231,7 @@ public class Main{
                     }
                 }
             }
+            System.out.println(random.nextBoolean());
 
             aAuxiliar(rutaSalida,buffer_salida);
             aAuxiliar(rutaSalidaError,buffer_salida_error);
@@ -277,7 +276,7 @@ public class Main{
                     indexBuffer++;
               }else{
                   if (!contains(paraDecodificar,-2)){ //decodifico
-                      info = corregirHamming(paraDecodificar, 3);
+                      info = corregirHamming(paraDecodificar, 3,false);
                       Arrays.fill(paraDecodificar,-2);
                       indexInfo = 0;
                   } else{
@@ -316,9 +315,9 @@ public class Main{
     public static void fin256(String rutaDeArchivo,String rutaSalida, int tipo) throws IOException {
 
         int tamaño;
-        if(tipo == 4){
+        if(tipo == 8){
             //256
-            tamaño = ctrls[tipo]-4-1;
+            tamaño = ctrls[tipo]-8-1;
 
         }else if(tipo == 13){
             //8k
@@ -334,8 +333,8 @@ public class Main{
         int[] info = new int[tamaño];
 
         //ctrls[tipo]
-        int[] caracter = new int[ctrls[tipo]];            // para decodificar
-        int[] paraDecodificar = new int[tamaño];            // para decodificar
+        int[] caracter = new int[8];                                // caracter tomado
+        int[] paraDecodificar = new int[ctrls[tipo]-1];            // para decodificar
 
         ArrayList<int[]> lista_Renglon = new ArrayList<int[]>();    //renglon
 
@@ -362,7 +361,7 @@ public class Main{
                     indexBuffer++;
               }else{
                   if (!contains(paraDecodificar,-2)){ //decodifico
-                      info = corregirHamming(paraDecodificar, tipo);
+                      info = corregirHamming(paraDecodificar, tipo,true);
                       Arrays.fill(paraDecodificar,-2);
                       indexInfo = 0;
                   } else{
@@ -517,8 +516,14 @@ public class Main{
     }
 
     public static char aDecimal(String cadena)throws IOException{
-        Integer a = Integer.parseInt(cadena,2); //paso a nro ascii
-        return (char) Integer.parseInt(cadena,2); //paso a nro ascii
+
+        if (!cadena.equals("")){
+            return (char) Integer.parseInt(cadena,2); //paso a nro ascii
+        }else{
+            char c = (char) 32;
+            return c;
+        }
+
     }
 
 
@@ -643,7 +648,7 @@ public class Main{
                         String rutaArchive = "src/com/company/archivo.txt";
                         String rutaSalida = "src/com/company/hamming256.txt";
                         String rutaSalidaError = "src/com/company/hammingError256.txt";
-                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,4);
+                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,8);
                         break;
                     }
                     case 3:{
@@ -692,12 +697,12 @@ public class Main{
                         System.out.println("256");
                         String rutaArchive = "src/com/company/hammingError256.txt";
                         String rutaSalida = "src/com/company/decodificacion256.txt";
-                        fin256(rutaArchive, rutaSalida, 4);
+                        fin256(rutaArchive, rutaSalida, 8);
                         break;
                     }
                     case 3:{
                         System.out.println("8192");
-                        String rutaArchive = "src/com/company/hammingError8192.txt";
+                        String rutaArchive = "src/com/company/hamming8192.txt";
                         String rutaSalida = "src/com/company/decodificacion8192.txt";
                         fin256(rutaArchive, rutaSalida, 13);
                         break;
@@ -907,12 +912,64 @@ public class Main{
     }
 
     
-    public static int[] corregirHamming(int a[], int parity_count) {
+    public static int[] corregirHamming(int a[], int parity_count,boolean corregir) {
 
         //esta funcion recibe un codigo hamming en un array a -> [1,0,1,1,0,0,0,0](por ej, ni idea si esta bien)
         //tambien pasamos por parametro el numero de bits de paridad o de control q se añadio a la informacion original.
         // es decir, si la info era: [1,0,0,0] y los bits de control son: c1 = 1, c2 = 0 y c3 = 1, tenemos 3 bits de control.
 		// Ahora tendremos que detectar el error y corregirlo, si es que hay uno.
+
+
+        int posicionArreglo;
+        int contadorDeRecoleccion;
+        int contFijo;                                   //valor que reinicia contadorDeRecoleccion
+
+        int posCtrol;   //posicion donde colocar el control
+        int tope = ((ctrls[parity_count]) - 2);           //ultima posicion de informacion
+
+
+        int acumulador;
+        int[] syn = new int[parity_count];
+        int indiceSyn = parity_count-1;
+
+        for (int p = parity_count - 1; 0 <= p; p--) {
+            posCtrol = ctrolInArreglo[p];
+            acumulador = 0;
+
+            contFijo = ctrls[p];
+            contadorDeRecoleccion = contFijo;
+
+            for (posicionArreglo = tope; posCtrol <= posicionArreglo; posicionArreglo--) {
+                acumulador = acumulador + a[posicionArreglo];
+                contadorDeRecoleccion--;
+
+                if (contadorDeRecoleccion == 0) {
+                    posicionArreglo = posicionArreglo - contFijo;
+                    contadorDeRecoleccion = contFijo;
+                }
+            }
+            if (acumulador % 2 == 0) {
+                syn[indiceSyn] = 0;
+                indiceSyn--;
+            } else {
+                syn[indiceSyn] = 1;
+                indiceSyn--;
+            }
+        }
+
+
+        //[0,1,1,1]
+
+        String syndrome="";
+
+        for (int j=0;j<syn.length;j++){
+            syndrome+=syn[j];
+        }
+
+
+
+
+
 
         int tamañoLocal;
         if(parity_count == 3){
@@ -932,28 +989,36 @@ public class Main{
         }
 
         int infoEntero[] = new int[tamañoLocal];
-		
-		int power; 
-		
-		int parity[] = new int[parity_count]; //almacenara los valores de las comprobaciones de paridad
-		
-		String syndrome = new String(); //almacenara el valor entero de la ubicacion del error
-		
+  /*
+		int power;
+
+		int parity[] = new int[parity_count];           //almacenara los valores de las comprobaciones de paridad
+
+		String syndrome = new String();                 //almacenara el valor entero de la ubicacion del error
+
+
+
 		for(power=0 ; power < parity_count ; power++) { //necesitamos verificar las paridades, la misma cantidad de veces que la cantidad de bits de paridad agregados
-			
-			for(int i=0 ; i < a.length ; i++) { //extrayendo el bit de 2^(power)
+
+            for(int i=0 ; i < a.length ; i++) {         //extrayendo el bit de 2^(power)
 				
 				int k = i+1;
 				String s = Integer.toBinaryString(k);
 				int bit = ((Integer.parseInt(s))/((int) Math.pow(10, power)))%10;
-				if(bit == 1) {
+
+                if(bit == 1) {
 					if(a[i] == 1) {
 						parity[power] = (parity[power]+1)%2;
 					}
 				}
 			}
 			syndrome = parity[power] + syndrome;
-		}
+		}*/
+
+
+        if(corregir==false){
+            syndrome="0";
+        }
 
 		// usando estos valores, ahora verificaremos si hay un error de un solo bit y luego lo corregiremos
 		
@@ -962,7 +1027,6 @@ public class Main{
         String infoFinal = "";
 
 		if(error_location != 0) {
-			System.out.println("El error se encuentra en la posicion: " + error_location + ".");
 			a[error_location-1] = (a[error_location-1]+1)%2;
 
             //1  0  0  1  1  1  1
@@ -971,22 +1035,18 @@ public class Main{
             //a[error_location-1]+1 = 2 % 2 = 0 -> es decir que colocamos un cero.
             //si tuvieramos un 0 en lugar de un 1 en a[0], entonces tendriamos: 1 % 2 = 1 -> es decir que colocamos un uno.
 
-			System.out.println("El Código corregido es: ");
 			for(int i=0; i<a.length ; i++) {
 				codigoCorregido += (a[a.length-i-1]);
 			}
             StringBuilder sb = new StringBuilder(codigoCorregido);
             codigoCorregido = sb.reverse().toString();
-            System.out.println(codigoCorregido);
 		}
 		else {
-			System.out.println("No se encontró ningun error!");
 		}
 		
 		//extraemos los datos originales del código recibido (y corregido)
 
-		System.out.println("La informacion original enviada fue: ");
-		power = parity_count-1;
+		int power = parity_count-1;
         int r = 0;
 		for(int i=a.length ; i > 0 ; i--) {
 			if(Math.pow(2, power) != i) {
