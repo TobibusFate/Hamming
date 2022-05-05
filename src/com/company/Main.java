@@ -243,7 +243,7 @@ public class Main{
 
 
     
-    public static void fin8(String rutaDeArchivo,String rutaSalida) throws IOException {
+    public static void fin8(String rutaDeArchivo,String rutaSalida,boolean corregir) throws IOException {
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
 
         int[] info = new int[4];                //info sin hamming
@@ -276,7 +276,7 @@ public class Main{
                     indexBuffer++;
               }else{
                   if (!contains(paraDecodificar,-2)){ //decodifico
-                      info = corregirHamming(paraDecodificar, 3,false);
+                      info = corregirHamming(paraDecodificar, 3,corregir);
                       Arrays.fill(paraDecodificar,-2);
                       indexInfo = 0;
                   } else{
@@ -312,7 +312,7 @@ public class Main{
 
     }
 
-    public static void fin256(String rutaDeArchivo,String rutaSalida, int tipo) throws IOException {
+    public static void fin256(String rutaDeArchivo,String rutaSalida, int tipo,boolean corregir) throws IOException {
 
         int tamaño;
         if(tipo == 8){
@@ -361,7 +361,7 @@ public class Main{
                     indexBuffer++;
               }else{
                   if (!contains(paraDecodificar,-2)){ //decodifico
-                      info = corregirHamming(paraDecodificar, tipo,true);
+                      info = corregirHamming(paraDecodificar, tipo,corregir);
                       Arrays.fill(paraDecodificar,-2);
                       indexInfo = 0;
                   } else{
@@ -571,7 +571,7 @@ public class Main{
 
     //Funciones que nos serviran más adelante
 
-    public static File crearArchivos(File entrada, int tipo, int bloque){
+    /*public static File crearArchivos(File entrada, int tipo, int bloque){
         //TIPO 0 -> HE ->Hamming con Error en Archivo
         //TIPO 1 -> DE ->Archivo Decodificado con Error sobre Archivo
         //TIPO 2 -> DC ->Archivo Decodificado Corregido sobre Archivo
@@ -605,126 +605,219 @@ public class Main{
             case 2 ->{return nombre.concat(".DC"+String.valueOf(bloque));}
         }
         return "";
-    }
+    }*/
 
     public static void main(String[] args) throws IOException {
         int select = 0;
         Scanner scan = new Scanner(System.in);
+        while (select!=5){
+            System.out.println("MENU\n\n");
+            System.out.println("1- CARGAR UN ARCHIVO PARA PROTEGER\n");
+            System.out.println("2- CARGAR UN ARCHIVO PARA DECODIFICAR UN ARCHIVO CORRECTO\n");
+            System.out.println("3- CARGAR UN ARCHIVO PARA DECODIFICAR CON CORRECCION DE ERROR\n");
+            System.out.println("4- CARGAR UN ARCHIVO PARA DECODIFICAR SIN CORRECCION DE ERROR\n");
+            System.out.println("5- SALIR\n");
 
-        System.out.println("MENU\n\n");
-        System.out.println("1- CARGAR UN ARCHIVO PARA PROTEGER\n");
-        System.out.println("2- CARGAR UN ARCHIVO PARA DECODIFICAR\n");
-        System.out.println("3- SALIR\n");
+            select = scan.nextInt();
 
-        select = scan.nextInt();
+            System.out.println("\n -----------------");
 
-        System.out.println("\n -----------------");
+            switch (select){
 
-        switch (select){
+                case 1:{
+                    int select1 = 0;
+                    System.out.println("MENU SELECCIONAR PROTECCION\n");
+                    System.out.println("1- BLOQUE DE 8 bits\n");
+                    System.out.println("2- BLOQUE DE 256 bits\n");
+                    System.out.println("3- BLOQUE DE 8192 bits\n");
+                    System.out.println("4- BLOQUE DE 262144 bits\n");
+                    System.out.println("5- SALIR\n");
+                    select1 = scan.nextInt();
 
-            case 1:{
-                int select1 = 0;
-                System.out.println("MENU SELECCIONAR PROTECCION\n");
-                System.out.println("1- BLOQUE DE 8 bits\n");
-                System.out.println("2- BLOQUE DE 256 bits\n");
-                System.out.println("3- BLOQUE DE 8192 bits\n");
-                System.out.println("4- BLOQUE DE 262144 bits\n");
-                System.out.println("5- SALIR\n");
-                select1 = scan.nextInt();
-
-                switch (select1){
-                    case 1:{
-                        //AQUI HAGO EL 8
-                        String rutaArchive = "src/com/company/archivo.txt";
-                        String rutaSalida = "src/com/company/hamming8.txt";
-                        String rutaSalidaError = "src/com/company/hammingError8.txt";
-                        inicio(rutaArchive,rutaSalida,rutaSalidaError);
-                        break;
+                    switch (select1){
+                        case 1:{
+                            //AQUI HAGO EL 8
+                            String rutaArchive = "src/com/company/archivo.txt";
+                            String rutaSalida = "src/com/company/hamming8.txt";
+                            String rutaSalidaError = "src/com/company/hammingError8.txt";
+                            inicio(rutaArchive,rutaSalida,rutaSalidaError);
+                            break;
+                        }
+                        case 2:{
+                            //AQUI HAGO EL 256
+                            String rutaArchive = "src/com/company/archivo.txt";
+                            String rutaSalida = "src/com/company/hamming256.txt";
+                            String rutaSalidaError = "src/com/company/hammingError256.txt";
+                            inicio256(rutaArchive,rutaSalida,rutaSalidaError,8);
+                            break;
+                        }
+                        case 3:{
+                            //AQUI HAGO EL 8192
+                            String rutaArchive = "src/com/company/archivo.txt";
+                            String rutaSalida = "src/com/company/hamming8192.txt";
+                            String rutaSalidaError = "src/com/company/hammingError8192.txt";
+                            inicio256(rutaArchive,rutaSalida,rutaSalidaError,13);
+                            break;
+                        }
+                        case 4:{
+                            //AQUI HAGO EL 262144
+                            String rutaArchive = "src/com/company/archivo.txt";
+                            String rutaSalida = "src/com/company/hamming262144.txt";
+                            String rutaSalidaError = "src/com/company/hammingError262144.txt";
+                            inicio256(rutaArchive,rutaSalida,rutaSalidaError,18);
+                            break;
+                        }
+                        case 5:{
+                            System.out.println("salir");
+                            break;
+                        }
                     }
-                    case 2:{
-                        //AQUI HAGO EL 256
-                        String rutaArchive = "src/com/company/archivo.txt";
-                        String rutaSalida = "src/com/company/hamming256.txt";
-                        String rutaSalidaError = "src/com/company/hammingError256.txt";
-                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,8);
-                        break;
-                    }
-                    case 3:{
-                        //AQUI HAGO EL 8192
-                        String rutaArchive = "src/com/company/archivo.txt";
-                        String rutaSalida = "src/com/company/hamming8192.txt";
-                        String rutaSalidaError = "src/com/company/hammingError8192.txt";
-                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,13);
-                        break;
-                    }
-                    case 4:{
-                        //AQUI HAGO EL 262144
-                        String rutaArchive = "src/com/company/archivo.txt";
-                        String rutaSalida = "src/com/company/hamming262144.txt";
-                        String rutaSalidaError = "src/com/company/hammingError262144.txt";
-                        inicio256(rutaArchive,rutaSalida,rutaSalidaError,18);
-                        break;
-                    }
-                    case 5:{
-                        System.out.println("salir");
-                        break;
-                    }
+                    break;
                 }
-                break;
-            }
 
-            case 2:{
-                int select1 = 0;
-                System.out.println("MENU SELECCIONAR PROTECCION\n");
-                System.out.println("1- BLOQUE DE 8 bits\n");
-                System.out.println("2- BLOQUE DE 256 bits\n");
-                System.out.println("3- BLOQUE DE 8192 bits\n");
-                System.out.println("4- BLOQUE DE 262144 bits\n");
-                System.out.println("5- SALIR\n");
-                select1 = scan.nextInt();
+                case 2:{
+                    int select1 = 0;
+                    System.out.println("MENU SELECCIONAR PROTECCION A DESHACER SIN ERROR\n");
+                    System.out.println("1- BLOQUE DE 8 bits\n");
+                    System.out.println("2- BLOQUE DE 256 bits\n");
+                    System.out.println("3- BLOQUE DE 8192 bits\n");
+                    System.out.println("4- BLOQUE DE 262144 bits\n");
+                    System.out.println("5- SALIR\n");
+                    select1 = scan.nextInt();
 
-                switch (select1){
-                    case 1:{
-                        System.out.println("8");
-                        String rutaArchive = "src/com/company/hammingError8.txt";
-                        String rutaSalida = "src/com/company/decodificacion8.txt";
-                        fin8(rutaArchive, rutaSalida);
-                        break;
+                    switch (select1){
+                        case 1:{
+                            System.out.println("8");
+                            String rutaArchive = "src/com/company/hamming.txt";
+                            String rutaSalida = "src/com/company/decodificacion_de_correcto8.txt";
+                            fin8(rutaArchive, rutaSalida,true);
+                            break;
+                        }
+                        case 2:{
+                            System.out.println("256");
+                            String rutaArchive = "src/com/company/hamming256.txt";
+                            String rutaSalida = "src/com/company/decodificacion_de_correcto256.txt";
+                            fin256(rutaArchive, rutaSalida, 8,true);
+                            break;
+                        }
+                        case 3:{
+                            System.out.println("8192");
+                            String rutaArchive = "src/com/company/hamming8192.txt";
+                            String rutaSalida = "src/com/company/decodificacion_de_correcto8192.txt";
+                            fin256(rutaArchive, rutaSalida, 13,true);
+                            break;
+                        }
+                        case 4:{
+                            System.out.println("262144");
+                            String rutaArchive = "src/com/company/hamming262144.txt";
+                            String rutaSalida = "src/com/company/decodificacion_de_correcto262144.txt";
+                            fin256(rutaArchive, rutaSalida, 18,true);
+                            break;
+                        }
+                        case 5:{
+                            break;
+                        }
                     }
-                    case 2:{
-                        System.out.println("256");
-                        String rutaArchive = "src/com/company/hammingError256.txt";
-                        String rutaSalida = "src/com/company/decodificacion256.txt";
-                        fin256(rutaArchive, rutaSalida, 8);
-                        break;
-                    }
-                    case 3:{
-                        System.out.println("8192");
-                        String rutaArchive = "src/com/company/hammingError8192.txt";
-                        String rutaSalida = "src/com/company/decodificacion8192.txt";
-                        fin256(rutaArchive, rutaSalida, 13);
-                        break;
-                    }
-                    case 4:{
-                        System.out.println("262144");
-                        String rutaArchive = "src/com/company/hammingError262144.txt";
-                        String rutaSalida = "src/com/company/decodificacion262144.txt";
-                        fin256(rutaArchive, rutaSalida, 18);
-                        break;
-                    }
-                    case 5:{
-                        break;
-                    }
+                    break;
                 }
-                break;
-            }
-            case 3:{
-                select = 0;
-                System.out.println("SALIDA - GRACIAS POR USAR EL PROGRAMA");
-                break;
+                case 3:{
+                    int select1 = 0;
+                    System.out.println("MENU SELECCIONAR PROTECCION A DESHACER CON CORRECCION\n");
+                    System.out.println("1- BLOQUE DE 8 bits\n");
+                    System.out.println("2- BLOQUE DE 256 bits\n");
+                    System.out.println("3- BLOQUE DE 8192 bits\n");
+                    System.out.println("4- BLOQUE DE 262144 bits\n");
+                    System.out.println("5- SALIR\n");
+                    select1 = scan.nextInt();
+
+                    switch (select1){
+                        case 1:{
+                            System.out.println("8");
+                            String rutaArchive = "src/com/company/hammingError8.txt";
+                            String rutaSalida = "src/com/company/decodificacion_con_correccion8.txt";
+                            fin8(rutaArchive, rutaSalida,true);
+                            break;
+                        }
+                        case 2:{
+                            System.out.println("256");
+                            String rutaArchive = "src/com/company/hammingError256.txt";
+                            String rutaSalida = "src/com/company/decodificacion_con_correccion256.txt";
+                            fin256(rutaArchive, rutaSalida, 8,true);
+                            break;
+                        }
+                        case 3:{
+                            System.out.println("8192");
+                            String rutaArchive = "src/com/company/hammingError8192.txt";
+                            String rutaSalida = "src/com/company/decodificacion_con_correccion8192.txt";
+                            fin256(rutaArchive, rutaSalida, 13,true);
+                            break;
+                        }
+                        case 4:{
+                            System.out.println("262144");
+                            String rutaArchive = "src/com/company/hammingError262144.txt";
+                            String rutaSalida = "src/com/company/decodificacion_con_correccion262144.txt";
+                            fin256(rutaArchive, rutaSalida, 18,true);
+                            break;
+                        }
+                        case 5:{
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case 4:{
+                    int select1 = 0;
+                    System.out.println("MENU SELECCIONAR PROTECCION A DESHACER SIN CORRECCION\n");
+                    System.out.println("1- BLOQUE DE 8 bits\n");
+                    System.out.println("2- BLOQUE DE 256 bits\n");
+                    System.out.println("3- BLOQUE DE 8192 bits\n");
+                    System.out.println("4- BLOQUE DE 262144 bits\n");
+                    System.out.println("5- SALIR\n");
+                    select1 = scan.nextInt();
+
+                    switch (select1){
+                        case 1:{
+                            System.out.println("8");
+                            String rutaArchive = "src/com/company/hammingError8.txt";
+                            String rutaSalida = "src/com/company/decodificacion_sin_correccion8.txt";
+                            fin8(rutaArchive, rutaSalida,false);
+                            break;
+                        }
+                        case 2:{
+                            System.out.println("256");
+                            String rutaArchive = "src/com/company/hammingError256.txt";
+                            String rutaSalida = "src/com/company/decodificacion_sin_correccion256.txt";
+                            fin256(rutaArchive, rutaSalida, 8,false);
+                            break;
+                        }
+                        case 3:{
+                            System.out.println("8192");
+                            String rutaArchive = "src/com/company/hammingError8192.txt";
+                            String rutaSalida = "src/com/company/decodificacion_sin_correccion8192.txt";
+                            fin256(rutaArchive, rutaSalida, 13,false);
+                            break;
+                        }
+                        case 4:{
+                            System.out.println("262144");
+                            String rutaArchive = "src/com/company/hammingError262144.txt";
+                            String rutaSalida = "src/com/company/decodificacion_sin_correccion262144.txt";
+                            fin256(rutaArchive, rutaSalida, 18,false);
+                            break;
+                        }
+                        case 5:{
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case 5:{
+                    System.out.println("SALIENDO DEL PROGRAMA");
+                    break;
+                }
             }
 
         }
+
 
     }
 /*
@@ -963,10 +1056,6 @@ public class Main{
         for (int j=0;j<syn.length;j++){
             syndrome+=syn[j];
         }
-
-
-
-
 
 
         int tamañoLocal;
