@@ -23,7 +23,7 @@ public class Main{
 
     public static void inicio(String rutaDeArchivo,String rutaSalida,String rutaSalidaError) throws IOException {
 
-        int[] hamming = new int[8];             //ultimo hamming realizado
+        int[] hamming = new int[7];             //ultimo hamming realizado
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
 
         int[] buffer_salida_error = new int[8];
@@ -196,8 +196,6 @@ public class Main{
                         }else{
                             hamming_error = hamming;
                         }
-
-                        //haming_error
                     }
                     else{                               //si necesito info para hacer hamming
                         if(lista_Renglon.isEmpty()){
@@ -231,10 +229,9 @@ public class Main{
                     }
                 }
             }
-            System.out.println(random.nextBoolean());
 
             aAuxiliar(rutaSalida,buffer_salida);
-            aAuxiliar(rutaSalidaError,buffer_salida_error);
+            //aAuxiliar(rutaSalidaError,buffer_salida_error);
             Arrays.fill(buffer_salida,-2);
             Arrays.fill(buffer_salida_error,-2);
             indexBuffer=0;
@@ -390,7 +387,10 @@ public class Main{
                 }
             }
         }
-        aAuxiliar(rutaSalida,buffer_salida);
+        if(distinto(buffer_salida,0)){
+            aAuxiliar(rutaSalida,buffer_salida);
+        }
+
         Arrays.fill(buffer_salida,-2);
         indexBuffer=0;
      }
@@ -635,6 +635,8 @@ public class Main{
                     select1 = scan.nextInt();
 
                     switch (select1){
+
+                        //codifica
                         case 1:{
                             //AQUI HAGO EL 8
                             String rutaArchive = "src/com/company/archivo.txt";
@@ -672,12 +674,16 @@ public class Main{
                             break;
                         }
                     }
+
+                    System.out.println("Codificaccion Exitosa");
                     break;
                 }
 
                 case 2:{
+
+                    //decodifica el correcto
                     int select1 = 0;
-                    System.out.println("MENU SELECCIONAR PROTECCION A DESHACER SIN ERROR\n");
+                    System.out.println("MENU SELECCIONAR PROTECCION A DESHACER\n");
                     System.out.println("1- BLOQUE DE 8 bits\n");
                     System.out.println("2- BLOQUE DE 256 bits\n");
                     System.out.println("3- BLOQUE DE 8192 bits\n");
@@ -688,30 +694,30 @@ public class Main{
                     switch (select1){
                         case 1:{
                             System.out.println("8");
-                            String rutaArchive = "src/com/company/hamming.txt";
+                            String rutaArchive = "src/com/company/hamming8.txt";
                             String rutaSalida = "src/com/company/decodificacion_de_correcto8.txt";
-                            fin8(rutaArchive, rutaSalida,true);
+                            fin8(rutaArchive, rutaSalida,false);
                             break;
                         }
                         case 2:{
                             System.out.println("256");
                             String rutaArchive = "src/com/company/hamming256.txt";
                             String rutaSalida = "src/com/company/decodificacion_de_correcto256.txt";
-                            fin256(rutaArchive, rutaSalida, 8,true);
+                            fin256(rutaArchive, rutaSalida, 8,false);
                             break;
                         }
                         case 3:{
                             System.out.println("8192");
                             String rutaArchive = "src/com/company/hamming8192.txt";
                             String rutaSalida = "src/com/company/decodificacion_de_correcto8192.txt";
-                            fin256(rutaArchive, rutaSalida, 13,true);
+                            fin256(rutaArchive, rutaSalida, 13,false);
                             break;
                         }
                         case 4:{
                             System.out.println("262144");
                             String rutaArchive = "src/com/company/hamming262144.txt";
                             String rutaSalida = "src/com/company/decodificacion_de_correcto262144.txt";
-                            fin256(rutaArchive, rutaSalida, 18,true);
+                            fin256(rutaArchive, rutaSalida, 18,false);
                             break;
                         }
                         case 5:{
@@ -820,69 +826,6 @@ public class Main{
 
 
     }
-/*
-    public void addcontrol3(int[] arr){
-        int cont = 4;
-        int ctrol = 3;
-        int pos; //15 = tope-1
-        int aux = 0;
-        for(pos = 14;ctrol < pos;pos--) {
-            aux =+ arr[pos];
-            cont--;
-            if (cont == 0){
-                pos = pos-4;
-                cont=4;
-            }
-        }
-        if (aux % 2 == 0){
-            arr[pos] = 0;
-        }
-        else {
-            arr[pos]=1;
-        }
-    }
-    public void addcontrol2(int[] arr){
-        int cont = 2;
-        int ctrol = 1;
-        int pos; //15 = tope-1
-        int aux = 0;
-        for(pos = 14;ctrol < pos;pos--) {
-            aux =+ arr[pos];
-            cont--;
-            if (cont == 0){
-                pos = pos-2;
-                cont=2;
-            }
-        }
-        if (aux % 2 == 0){
-            arr[pos]=0;
-        }
-        else {
-            arr[pos]=1;
-        }
-    }
-    public void addcontrol1(int[] arr){
-        int cont = 1;
-        int ctrol = 0;
-        int aux = 0;
-        int pos; //15 = tope-1
-        for(pos = 14;ctrol < pos;pos--) {
-            aux =+ arr[pos];
-            cont--;
-            if (cont == 0){
-                pos = pos-1;
-                cont=1;
-            }
-        }
-        if (aux % 2 == 0){
-            arr[pos] = 0;
-        }
-        else {
-            arr[pos] = 1;
-        }
-    }*/
-
-
 
 
     //info: arreglo de 4 248 8179 o 262126 bits de informacion
@@ -894,7 +837,7 @@ public class Main{
 
     public static int[] contruirHamming(int[] info, int cant){
 
-        int [] ham = new int[ctrls[cant]];
+        int [] ham = new int[ctrls[cant]-1];
         int j=0;
 
         //[0,0,0,0]
@@ -914,7 +857,6 @@ public class Main{
 
             }
         }
-        ham[ctrls[cant]-1]=-2;
 
         ham = addcontrols(ham,cant);
 
@@ -934,8 +876,8 @@ public class Main{
         int contadorDeRecoleccion;
         int contFijo;                                   //valor que reinicia contadorDeRecoleccion
 
-        int posCtrol;   //posicion donde colocar el control
-        int tope = ((ctrls[posInCtrol]) - 2);           //ultima posicion de informacion
+        int posCtrol;                                   //posicion donde colocar el control
+        int tope = ((ctrls[posInCtrol])-2);           //ultima posicion de informacion
 
 
         //int[] ctrls               {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
@@ -943,23 +885,22 @@ public class Main{
         //int[] ctrolInArreglo       0 1 3 7 15 31 63 127 255 511,1023,2047,4095,8191,16383,32767,65535,131071,262143
 
 
-        //[0...255] //8controles
-
+        //[0...255] // 8controles
         //   [-1,-1,0,-1,1,1,0,-2]
         //    0  1  2  3 4 5 6  7
 
-
         //3 //8  //13  //18
         //3//127//4095//131071
-
         //7
+
+        int cont =0;
 
         int acumulador;
         for (int p = posInCtrol - 1; 0 <= p; p--) {
-            posCtrol = ctrolInArreglo[p];
+            posCtrol = ctrolInArreglo[p]; //128
             acumulador = 0;
 
-            contFijo = ctrls[p];
+            contFijo = ctrls[p]; //128
             contadorDeRecoleccion = contFijo;
 
             for (posicionArreglo = tope; posCtrol < posicionArreglo; posicionArreglo--) {
@@ -970,13 +911,19 @@ public class Main{
                     posicionArreglo = posicionArreglo - contFijo;
                     contadorDeRecoleccion = contFijo;
                 }
+                cont++;
             }
             if (acumulador % 2 == 0) {
                 arr[posicionArreglo] = 0;
+                System.out.println(cont);
+                cont=0;
             } else {
                 arr[posicionArreglo] = 1;
+                System.out.println(cont);
+                cont=0;
             }
         }
+        System.out.println( "algo");
         return arr;
     }
 
@@ -1022,6 +969,7 @@ public class Main{
         int acumulador;
         int[] syn = new int[parity_count];
         int indiceSyn = parity_count-1;
+        int cont=0;
 
         for (int p = parity_count - 1; 0 <= p; p--) {
             posCtrol = ctrolInArreglo[p];
@@ -1033,6 +981,7 @@ public class Main{
             for (posicionArreglo = tope; posCtrol <= posicionArreglo; posicionArreglo--) {
                 acumulador = acumulador + a[posicionArreglo];
                 contadorDeRecoleccion--;
+                cont++;
 
                 if (contadorDeRecoleccion == 0) {
                     posicionArreglo = posicionArreglo - contFijo;
@@ -1042,9 +991,13 @@ public class Main{
             if (acumulador % 2 == 0) {
                 syn[indiceSyn] = 0;
                 indiceSyn--;
+                System.out.println(cont);
+                cont=0;
             } else {
                 syn[indiceSyn] = 1;
                 indiceSyn--;
+                System.out.println(cont);
+                cont=0;
             }
         }
 
@@ -1073,6 +1026,11 @@ public class Main{
                 //262k
                 tamañoLocal = ctrls[parity_count]-18-1;
             }
+        }
+
+
+        if(distinto(syn,0)){
+            System.out.println("alto ahi pirata");
         }
 
         int infoEntero[] = new int[tamañoLocal];
