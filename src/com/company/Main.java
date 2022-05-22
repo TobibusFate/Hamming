@@ -1,8 +1,6 @@
 package com.company;
 
 import java.io.*;
-import java.lang.reflect.Array;
-import java.security.cert.CertPathChecker;
 import java.util.*;
 
 
@@ -32,9 +30,9 @@ public class Main{
 
         int[] info = new int[8];                //datos de caracter sin hamming pendientes
 
-        ArrayList<int[]> lista_Renglon = new ArrayList<int[]>();    //renglon
+        ArrayList<int[]> lista_Renglon = new ArrayList<>();    //renglon
 
-        ArrayList<String> listaStrings = new ArrayList<>();
+        ArrayList<String> listaStrings;
 
         Arrays.fill(hamming,-2);
         Arrays.fill(buffer_salida,-2);
@@ -43,18 +41,12 @@ public class Main{
         int indexBuffer = 0;
         int indexHamming = 0;
 
-
         listaStrings = leerArchivo(rutaDeArchivo);
 
         while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){ //mientras quede info que procesar
             while (contains(buffer_salida,-2)){//mientras el buffer no este listo para salir
 
                 if(distinto(hamming,-2)) {      //si tengo datos para agregar
-
-
-                    /*if(indexHamming==8||indexBuffer==8){
-
-                    }*/
 
                     buffer_salida[indexBuffer] = hamming[indexHamming];
                     buffer_salida_error[indexBuffer]=hamming_error[indexHamming];
@@ -101,7 +93,6 @@ public class Main{
                     }
                 }
             }
-
             aAuxiliar(rutaSalida,buffer_salida);
             aAuxiliar(rutaSalidaError,buffer_salida_error);
             Arrays.fill(buffer_salida,-2);
@@ -134,7 +125,7 @@ public class Main{
             tamañoLocal =ctrls[tipo]-18-1;
         }
 
-        int[] hamming = new int[ctrls[tipo]];            //ultimo hamming realizado
+        int[] hamming = new int[ctrls[tipo]-1];            //ultimo hamming realizado
         int[] local = new int[tamañoLocal];              //tamaño-cantControles-1
 
         /*
@@ -164,10 +155,8 @@ public class Main{
         listaStrings = leerArchivo(rutaDeArchivo);
 
         while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){ //mientras quede info que procesar
-
             while (contains(buffer_salida,-2)){ //mientras el buffer no este listo para salir
                 if(distinto(hamming,-2)) {      //si tengo datos para agregar
-
                     buffer_salida[indexBuffer] = hamming[indexHamming];
                     buffer_salida_error[indexBuffer]=hamming_error[indexHamming];
                     hamming[indexHamming]=-2;
@@ -175,7 +164,6 @@ public class Main{
 
                     indexHamming++;
                     indexBuffer++;
-
                 }
                 // info  = [-2,-2,-2,-2,0,0,0,0]
                 // local = [1,1,1,0,0,0,0,0,0,0,0,0,0,0,-2]
@@ -218,6 +206,7 @@ public class Main{
                     }
                 }
             }
+
             if(distinto(buffer_salida,-2)&&(!distinto(hamming,-2)&&lista_Renglon.isEmpty()&&listaStrings.isEmpty())){
                 //a buffer de salida lo completo con 0
                 for(int index=0;index<buffer_salida.length;index++){
@@ -231,7 +220,7 @@ public class Main{
             }
 
             aAuxiliar(rutaSalida,buffer_salida);
-            //aAuxiliar(rutaSalidaError,buffer_salida_error);
+            aAuxiliar(rutaSalidaError,buffer_salida_error);
             Arrays.fill(buffer_salida,-2);
             Arrays.fill(buffer_salida_error,-2);
             indexBuffer=0;
@@ -273,6 +262,7 @@ public class Main{
                     indexBuffer++;
               }else{
                   if (!contains(paraDecodificar,-2)){ //decodifico
+
                       info = corregirHamming(paraDecodificar, 3,corregir);
                       Arrays.fill(paraDecodificar,-2);
                       indexInfo = 0;
@@ -294,6 +284,7 @@ public class Main{
               }
             }
         }
+
         if(distinto(buffer_salida,-2)&&(!distinto(info,-2)&&lista_Renglon.isEmpty()&&listaStrings.isEmpty())){
             //a buffer de salida lo completo con 0
             for(int index=0;index<buffer_salida.length;index++){
@@ -335,7 +326,7 @@ public class Main{
 
         ArrayList<int[]> lista_Renglon = new ArrayList<int[]>();    //renglon
 
-        ArrayList<String> listaStrings = new ArrayList<>();
+        ArrayList<String> listaStrings;
 
         int indexBuffer = 0;
         int indexInfo = 0;
@@ -345,9 +336,11 @@ public class Main{
         Arrays.fill(info,-2);
         Arrays.fill(paraDecodificar,-2);
 
+        int [] solucion = {0,0,0,0,1,0,1,0};
+
         listaStrings = leerArchivo(rutaDeArchivo);
 
-        while (distinto(buffer_salida,-2)|| distinto(info,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){
+         while (distinto(buffer_salida,-2)|| distinto(info,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){
 
           while (contains(buffer_salida,-2)){ //pasar datos a buffer
               if (distinto(info,-2)){
@@ -373,7 +366,10 @@ public class Main{
                                     break;
                                 }
                             }else {
-                                   caracter = actualizarCaracter(lista_Renglon);
+                                caracter = actualizarCaracter(lista_Renglon);
+                                if(Arrays.equals(caracter,solucion)){
+                                    caracter = new int[]{0,0,0,0,1,1,0,1};
+                                }
                             }
                       }
               }
@@ -511,13 +507,14 @@ public class Main{
         }
         w_auxiliar = new FileWriter(auxiliar.getAbsoluteFile(),true);
         b_w_auxiliar = new BufferedWriter(w_auxiliar);
+
         b_w_auxiliar.write(aDecimal(local));
         b_w_auxiliar.close();
     }
 
     public static char aDecimal(String cadena) throws NumberFormatException{
         if(cadena.equals("........")){
-            char c = (char) 32;
+            char c = (char) 0;
             return c;
         }else{
             return (char) Integer.parseInt(cadena,2); //paso a nro ascii
@@ -893,13 +890,11 @@ public class Main{
         //3//127//4095//131071
         //7
 
-        int cont =0;
 
         int acumulador;
         for (int p = posInCtrol - 1; 0 <= p; p--) {
             posCtrol = ctrolInArreglo[p]; //128
             acumulador = 0;
-
             contFijo = ctrls[p]; //128
             contadorDeRecoleccion = contFijo;
 
@@ -911,16 +906,11 @@ public class Main{
                     posicionArreglo = posicionArreglo - contFijo;
                     contadorDeRecoleccion = contFijo;
                 }
-                cont++;
             }
             if (acumulador % 2 == 0) {
                 arr[posicionArreglo] = 0;
-                System.out.println(cont);
-                cont=0;
             } else {
                 arr[posicionArreglo] = 1;
-                System.out.println(cont);
-                cont=0;
             }
         }
         System.out.println( "algo");
@@ -969,20 +959,16 @@ public class Main{
         int acumulador;
         int[] syn = new int[parity_count];
         int indiceSyn = parity_count-1;
-        int cont=0;
 
         for (int p = parity_count - 1; 0 <= p; p--) {
             posCtrol = ctrolInArreglo[p];
             acumulador = 0;
-
             contFijo = ctrls[p];
             contadorDeRecoleccion = contFijo;
 
             for (posicionArreglo = tope; posCtrol <= posicionArreglo; posicionArreglo--) {
                 acumulador = acumulador + a[posicionArreglo];
                 contadorDeRecoleccion--;
-                cont++;
-
                 if (contadorDeRecoleccion == 0) {
                     posicionArreglo = posicionArreglo - contFijo;
                     contadorDeRecoleccion = contFijo;
@@ -991,13 +977,9 @@ public class Main{
             if (acumulador % 2 == 0) {
                 syn[indiceSyn] = 0;
                 indiceSyn--;
-                System.out.println(cont);
-                cont=0;
             } else {
                 syn[indiceSyn] = 1;
                 indiceSyn--;
-                System.out.println(cont);
-                cont=0;
             }
         }
 
@@ -1028,38 +1010,11 @@ public class Main{
             }
         }
 
-
         if(distinto(syn,0)){
             System.out.println("alto ahi pirata");
         }
 
         int infoEntero[] = new int[tamañoLocal];
-  /*
-		int power;
-
-		int parity[] = new int[parity_count];           //almacenara los valores de las comprobaciones de paridad
-
-		String syndrome = new String();                 //almacenara el valor entero de la ubicacion del error
-
-
-
-		for(power=0 ; power < parity_count ; power++) { //necesitamos verificar las paridades, la misma cantidad de veces que la cantidad de bits de paridad agregados
-
-            for(int i=0 ; i < a.length ; i++) {         //extrayendo el bit de 2^(power)
-				
-				int k = i+1;
-				String s = Integer.toBinaryString(k);
-				int bit = ((Integer.parseInt(s))/((int) Math.pow(10, power)))%10;
-
-                if(bit == 1) {
-					if(a[i] == 1) {
-						parity[power] = (parity[power]+1)%2;
-					}
-				}
-			}
-			syndrome = parity[power] + syndrome;
-		}*/
-
 
         if(corregir==false){
             syndrome="0";
