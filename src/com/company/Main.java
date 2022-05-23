@@ -154,6 +154,8 @@ public class Main{
 
         listaStrings = leerArchivo(rutaDeArchivo);
 
+        //int [] solucion = {0,0,0,0,1,0,1,0};
+
         while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){ //mientras quede info que procesar
             while (contains(buffer_salida,-2)){ //mientras el buffer no este listo para salir
                 if(distinto(hamming,-2)) {      //si tengo datos para agregar
@@ -202,6 +204,9 @@ public class Main{
                         }
                         else {
                             info = actualizarCaracter(lista_Renglon);
+                            //if(Arrays.equals(info,solucion)){
+                              //  info = new int[]{0,0,0,0,1,1,0,1};
+                            //}
                         }
                     }
                 }
@@ -475,13 +480,16 @@ public class Main{
     public static ArrayList leerArchivo(String rutaArchive) throws IOException { //se lee la info que esta en el archivo archive
         archive = new File(rutaArchive);
         String texto = "";
+        int size = 0;
+        int tamaño = (int)archive.length();
 
         ArrayList<String> lis = new ArrayList<>();
         try{
             b_r_archive = new BufferedReader(new InputStreamReader(new FileInputStream(rutaArchive), "utf-8"));
-            while ((texto = b_r_archive.readLine()) != null){
+            while (((texto = b_r_archive.readLine()) != null) && size != tamaño){
                 //sb_archive.append(texto+"\n");
                 lis.add(texto+"\n");
+                size++;
             }//new line
 
             b_r_archive.close();
@@ -656,6 +664,12 @@ public class Main{
                             String rutaSalida = "src/com/company/hamming8192.txt";
                             String rutaSalidaError = "src/com/company/hammingError8192.txt";
                             inicio256(rutaArchive,rutaSalida,rutaSalidaError,13);
+                            /*int a[] = {1,0,0,1,1,1,1};
+                            int rta [] = new int[10];
+                            rta = corregirHamming(a, 3, true);
+                            for(int i = 0; i<rta.length; i++){
+                                System.out.println(rta[i]);
+                            }*/
                             break;
                         }
                         case 4:{
@@ -913,7 +927,6 @@ public class Main{
                 arr[posicionArreglo] = 1;
             }
         }
-        System.out.println( "algo");
         return arr;
     }
 
@@ -991,6 +1004,8 @@ public class Main{
         for (int j=0;j<syn.length;j++){
             syndrome+=syn[j];
         }
+        StringBuilder s = new StringBuilder(syndrome);
+        syndrome = s.reverse().toString();
 
 
         int tamañoLocal;
@@ -1080,6 +1095,7 @@ public class Main{
     }
 
 }
+
 
 
 
