@@ -32,7 +32,7 @@ public class Main{
 
         ArrayList<int[]> lista_Renglon = new ArrayList<>();    //renglon
 
-        ArrayList<String> listaStrings;
+        ArrayList<Character> listaC;
 
         Arrays.fill(hamming,-2);
         Arrays.fill(buffer_salida,-2);
@@ -41,9 +41,10 @@ public class Main{
         int indexBuffer = 0;
         int indexHamming = 0;
 
-        listaStrings = leerArchivo(rutaDeArchivo);
+        listaC = leerArchivo(rutaDeArchivo);
+        lista_Renglon = actualizarLista(listaC);
 
-        while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){ //mientras quede info que procesar
+        while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()){ //mientras quede info que procesar
             while (contains(buffer_salida,-2)){//mientras el buffer no este listo para salir
 
                 if(distinto(hamming,-2)) {      //si tengo datos para agregar
@@ -69,20 +70,17 @@ public class Main{
                         //haming_error
                     }
                     else{                               //si necesito info para hacer hamming
-                        if(lista_Renglon.isEmpty()){
-                            if(!listaStrings.isEmpty()){
-                                lista_Renglon =actualizarLista(listaStrings);
-                            }else {
-                                break;
-                            }
-                        }
-                        else {
+                        if(!lista_Renglon.isEmpty()){
+                            
                             info = actualizarCaracter(lista_Renglon);
+                                
+                        }else{
+                            break;
                         }
                     }
                 }
             }
-            if(distinto(buffer_salida,-2)&&(!distinto(hamming,-2)&&lista_Renglon.isEmpty()&&listaStrings.isEmpty())){
+            if(distinto(buffer_salida,-2)&&(!distinto(hamming,-2)&&lista_Renglon.isEmpty())){
                 //a buffer de salida lo completo con 0
                 for(int index=0;index<buffer_salida.length;index++){
                     if (buffer_salida[index]==-2){
@@ -110,7 +108,7 @@ public class Main{
 
         ArrayList<int[]> lista_Renglon = new ArrayList<>();    //renglon
         Random random =new Random();
-        ArrayList<String> listaStrings;
+        ArrayList<Character> listaC;
 
         int tamañoLocal;
         if(tipo == 8){
@@ -152,11 +150,11 @@ public class Main{
         boolean nomore = false;
         boolean last= false;
 
-        listaStrings = leerArchivo(rutaDeArchivo);
+        listaC = leerArchivo(rutaDeArchivo);
+        lista_Renglon = actualizarLista(listaC);
 
-        //int [] solucion = {0,0,0,0,1,0,1,0};
 
-        while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){ //mientras quede info que procesar
+        while (distinto(buffer_salida,-2)||distinto(hamming,-2)||!lista_Renglon.isEmpty()){ //mientras quede info que procesar
             while (contains(buffer_salida,-2)){ //mientras el buffer no este listo para salir
                 if(distinto(hamming,-2)) {      //si tengo datos para agregar
                     buffer_salida[indexBuffer] = hamming[indexHamming];
@@ -187,32 +185,27 @@ public class Main{
                             hamming_error = hamming;
                         }
                     }
-                    else{                               //si necesito info para hacer hamming
-                        if(lista_Renglon.isEmpty()){
-                            if(!listaStrings.isEmpty()){
-                                lista_Renglon = actualizarLista(listaStrings);
-                            }else {
-                                if(nomore==false){
-                                    nomore=true;
-                                    last=true;
-                                    rellenarCon0(local);
-                                }else{
-                                    System.out.println("SE TE VACIO LA LISTA PAPA");
-                                    break;
-                                }
-                            }
-                        }
-                        else {
+                    else{       //si necesito info para hacer hamming
+                        if(!lista_Renglon.isEmpty()){
+                            
                             info = actualizarCaracter(lista_Renglon);
-                            //if(Arrays.equals(info,solucion)){
-                              //  info = new int[]{0,0,0,0,1,1,0,1};
-                            //}
+                                
+                        }else{
+                            if(nomore==false){
+                                nomore=true;
+                                last=true;
+                                rellenarCon0(local);
+                            }else{
+                                System.out.println("SE TE VACIO LA LISTA PAPA");
+                                break;
+                            }
+
                         }
                     }
                 }
             }
 
-            if(distinto(buffer_salida,-2)&&(!distinto(hamming,-2)&&lista_Renglon.isEmpty()&&listaStrings.isEmpty())){
+            if(distinto(buffer_salida,-2)&&(!distinto(hamming,-2)&&lista_Renglon.isEmpty())){
                 //a buffer de salida lo completo con 0
                 for(int index=0;index<buffer_salida.length;index++){
                     if (buffer_salida[index]==-2){
@@ -244,7 +237,7 @@ public class Main{
 
         ArrayList<int[]> lista_Renglon = new ArrayList<int[]>();    //renglon
 
-        ArrayList<String> listaStrings = new ArrayList<>();
+        ArrayList<Character> listaC = new ArrayList<>();
 
         int indexBuffer = 0;
         int indexInfo = 0;
@@ -254,9 +247,10 @@ public class Main{
         Arrays.fill(info,-2);
         Arrays.fill(paraDecodificar,-2);
 
-        listaStrings = leerArchivo(rutaDeArchivo);
+        listaC = leerArchivo(rutaDeArchivo);
+        lista_Renglon = actualizarLista(listaC);
 
-        while (distinto(buffer_salida,-2)|| distinto(info,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){
+        while (distinto(buffer_salida,-2)|| distinto(info,-2)||!lista_Renglon.isEmpty()){
 
           while (contains(buffer_salida,-2)){ //pasar datos a buffer
               if (distinto(info,-2)){
@@ -275,22 +269,17 @@ public class Main{
                       if(distinto(caracter,-2)){ // usarlo para llenar decodificar
                         paraDecodificar = recorreArregloAux(caracter, paraDecodificar, primerPosDeInfo(caracter));
                       }else{ //pido un nuevo caraceter
-                            if(lista_Renglon.isEmpty()){
-                                if(!listaStrings.isEmpty()){
-                                    lista_Renglon = actualizarLista(listaStrings);
-                                }else {
-                                    System.out.println("SE TE VACIO LA LISTA PAPA");
-                                    break;
-                                }
+                            if(!lista_Renglon.isEmpty()){
+                               caracter = actualizarCaracter(lista_Renglon);
                             }else {
-                                   caracter = actualizarCaracter(lista_Renglon);
+                                break;
                             }
                       }
               }
             }
         }
 
-        if(distinto(buffer_salida,-2)&&(!distinto(info,-2)&&lista_Renglon.isEmpty()&&listaStrings.isEmpty())){
+        if(distinto(buffer_salida,-2)&&(!distinto(info,-2)&&lista_Renglon.isEmpty())){
             //a buffer de salida lo completo con 0
             for(int index=0;index<buffer_salida.length;index++){
                 if (buffer_salida[index]==-2){
@@ -324,14 +313,12 @@ public class Main{
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
 
         int[] info = new int[tamaño];
-
-        //ctrls[tipo]
         int[] caracter = new int[8];                                // caracter tomado
         int[] paraDecodificar = new int[ctrls[tipo]-1];            // para decodificar
 
         ArrayList<int[]> lista_Renglon = new ArrayList<int[]>();    //renglon
 
-        ArrayList<String> listaStrings;
+        ArrayList<Character> listaC;
 
         int indexBuffer = 0;
         int indexInfo = 0;
@@ -341,11 +328,10 @@ public class Main{
         Arrays.fill(info,-2);
         Arrays.fill(paraDecodificar,-2);
 
-        int [] solucion = {0,0,0,0,1,0,1,0};
+        listaC = leerArchivo(rutaDeArchivo);
+        lista_Renglon = actualizarLista(listaC);
 
-        listaStrings = leerArchivo(rutaDeArchivo);
-
-         while (distinto(buffer_salida,-2)|| distinto(info,-2)||!lista_Renglon.isEmpty()||!listaStrings.isEmpty()){
+         while (distinto(buffer_salida,-2)|| distinto(info,-2)||!lista_Renglon.isEmpty()){
 
           while (contains(buffer_salida,-2)){ //pasar datos a buffer
               if (distinto(info,-2)){
@@ -363,24 +349,16 @@ public class Main{
                       if(distinto(caracter,-2)){ // usarlo para llenar decodificar
                         paraDecodificar = recorreArregloAux(caracter, paraDecodificar, primerPosDeInfo(caracter));
                       }else{ //pido un nuevo caraceter
-                            if(lista_Renglon.isEmpty()){
-                                if(!listaStrings.isEmpty()){
-                                    lista_Renglon = actualizarLista(listaStrings);
-                                }else {
-                                    System.out.println("SE TE VACIO LA LISTA PAPA");
-                                    break;
-                                }
-                            }else {
+                            if(!lista_Renglon.isEmpty()){
                                 caracter = actualizarCaracter(lista_Renglon);
-                                if(Arrays.equals(caracter,solucion)){
-                                    caracter = new int[]{0,0,0,0,1,1,0,1};
-                                }
+                            }else{
+                                break;
                             }
                       }
               }
             }
         }
-        if(distinto(buffer_salida,-2)&&(!distinto(info,-2)&&lista_Renglon.isEmpty()&&listaStrings.isEmpty())){
+        if(distinto(buffer_salida,-2)&&(!distinto(info,-2)&&lista_Renglon.isEmpty())){
             //a buffer de salida lo completo con 0
             for(int index=0;index<buffer_salida.length;index++){
                 if (buffer_salida[index]==-2){
@@ -399,10 +377,7 @@ public class Main{
     }
 
 
-    public static ArrayList<int[]> actualizarLista(ArrayList<String> listaString) throws IOException {
-        //pedir nuevo renglon
-        listaC = pasarCadaC(listaString.get(0)); //pasamos lo que esta en listas a una listaC que tiene caracteres, no strings
-        listaString.remove(0);
+    public static ArrayList<int[]> actualizarLista(ArrayList<Character> listaC) throws IOException {
         return aBinario(listaC);
     }
 
@@ -479,17 +454,18 @@ public class Main{
 
     public static ArrayList leerArchivo(String rutaArchive) throws IOException { //se lee la info que esta en el archivo archive
         archive = new File(rutaArchive);
-        String texto = "";
         int size = 0;
         int tamaño = (int)archive.length();
 
-        ArrayList<String> lis = new ArrayList<>();
+        ArrayList<Character> lis = new ArrayList<>();
+
         try{
             b_r_archive = new BufferedReader(new InputStreamReader(new FileInputStream(rutaArchive), "utf-8"));
-            while (((texto = b_r_archive.readLine()) != null) && size != tamaño){
-                //sb_archive.append(texto+"\n");
-                lis.add(texto+"\n");
-                size++;
+            int caracter = b_r_archive.read();
+            while ((caracter != -1) /*&& size != tamaño*/){
+                lis.add((char)caracter);
+                //size++;
+                caracter = b_r_archive.read();
             }//new line
 
             b_r_archive.close();
@@ -960,6 +936,7 @@ public class Main{
         // es decir, si la info era: [1,0,0,0] y los bits de control son: c1 = 1, c2 = 0 y c3 = 1, tenemos 3 bits de control.
 		// Ahora tendremos que detectar el error y corregirlo, si es que hay uno.
 
+        
 
         int posicionArreglo;
         int contadorDeRecoleccion;
@@ -1038,6 +1015,7 @@ public class Main{
 		// usando estos valores, ahora verificaremos si hay un error de un solo bit y luego lo corregiremos
 		
 		int error_location = Integer.parseInt(syndrome, 2);
+        System.out.println("error en:"+error_location);
         String codigoCorregido = "";
         String infoFinal = "";
 
@@ -1079,7 +1057,91 @@ public class Main{
         }
 
         return infoEntero; 
-	}
+
+        /*
+        //void CheckHamming(char *HammingString, int parity){
+
+        // Initializing the local variables i, j, k, start, length, ParityNumber 
+
+        int tamañoLocal;
+        String infoFinal = "";
+
+        if(parity_count == 3){
+            tamañoLocal = ctrls[parity_count]-3-1;
+        }else{
+            if(parity_count == 8){
+                //256
+                tamañoLocal = ctrls[parity_count]-8-1;
+            }else if(parity_count == 13){
+                //8k
+                tamañoLocal = ctrls[parity_count]-13-1;
+            }
+            else {// Tipo == 18
+                //262k
+                tamañoLocal = ctrls[parity_count]-18-1;
+            }
+        }
+
+        int infoEntero[] = new int[tamañoLocal];
+
+        int i, j, k, start, length, ParityNumber;
+        int ErrorBit = 0;                        
+        length = a.length;          
+        length--;
+
+        ParityNumber = (int) Math.ceil(Math.log(length)/Math.log(2)); // The ceil function returns the smallest integer that is greater than or equal to 'x'.
+        
+        for(i = 0; i < ParityNumber; i++){
+            // pow returns x raised to the power y. In this case, 2 raised to the power i.
+            start = (int) Math.pow(2, i);
+            int ParityCheck = parity_count;
+            for(j = start; j < length; j=j+(2*start)){
+                for(k = j; (k < ((2*j) - 1)) && (k < length); k++){
+                    ParityCheck ^= (a[length - k] - '0');
+                } // End the k for-loop
+            } // End the j for-loop
+            ErrorBit = ErrorBit + (ParityCheck * start); 
+        } // End the i for-loop
+
+        if(corregir == false){
+            ErrorBit = 0;
+        }
+
+        if(ErrorBit == 0){
+            System.out.println("No error \n");
+        }else{
+            System.out.println("There is an error in bit: "+ErrorBit+"\n");
+            if(a[length - ErrorBit] == 0){
+                a[length - ErrorBit] = 1;
+            }else{
+                a[length - ErrorBit] = 0;
+            }
+        
+            System.out.println("the correcting hamming code is:");
+            for(int w = 0; w<a.length;w++){
+                System.out.println(a[w]);
+            }
+        }
+
+        int power = parity_count-1;
+
+		for(int w=a.length ; w > 0 ; w--) {
+			if(Math.pow(2, power) != w) {
+                infoFinal += (a[w-1]);
+			}
+			else {
+				power--;
+			}
+		}
+        StringBuilder sbFinal = new StringBuilder(infoFinal);
+        infoFinal = sbFinal.reverse().toString();
+
+        for(int q=0; q< infoFinal.length(); q++){
+            infoEntero[q] = Character.getNumericValue(infoFinal.charAt(q));
+        }
+
+        return infoEntero;*/
+}
 
 
     //static int[] ctrls = {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
