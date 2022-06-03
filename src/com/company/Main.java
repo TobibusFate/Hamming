@@ -91,16 +91,92 @@ public class Main {
         salidaDeCodigos(rutaDeCodigos,estructura,cont);
     }
 
-    public static void deshacerHuffman(){
-        //HashMap<ArrayList<Integer>,Character> estructura = new HashMap<>();
+    public static void deshacerHuffman(String rutaDeArchivo,String rutaDeCodigos) throws IOException {
+        HashMap<ArrayList<Integer>,Character> estructura;
+        ArrayList<Character> listaC;
+        int cont = recuperarCont(rutaDeCodigos);
+        listaC = leerArchivo(rutaDeArchivo);
+
+        estructura = llenarEstructura(rutaDeCodigos);
+
+        ArrayList<Integer> caracter = new ArrayList<>();
+        int[] arreglocaracter = new int[8];
+        Arrays.fill(arreglocaracter,-2);
+        int arregloIndice = 0;
+
+
+        while (!listaC.isEmpty()){
+            if(estructura.containsKey(caracter)){
+                //estructura.remove(caracter) <--- salida a archivo
+            }else {
+                if (distinto(arreglocaracter,-2)) {
+                    caracter.add(arreglocaracter[arregloIndice]);
+                    arreglocaracter[arregloIndice] =-2;
+                    arregloIndice++;
+                } else {
+                    //listaC.remove(0).charValue();
+
+                }
+
+            }
+
+
+        }
+
         /*
-        Levantar todos los codigos en estructura, haciendo que el codigo sea la clave y el caracter el valor
         levantar salida huffman y pasar a binario
         tomar bits hasta que alguno coincida con alguna key del mapa, reemplazar y escribir en archivo de salida
 
          */
 
 
+    }
+
+    private static int recuperarCont(String rutaDeCodigos){
+        archive = new File(rutaDeCodigos);
+        int cont = 0;
+        try {
+            b_r_archive = new BufferedReader(new InputStreamReader(new FileInputStream(rutaDeCodigos), "utf-8"));
+            cont = Integer.parseInt(b_r_archive.readLine());
+            b_r_archive.close();
+        } catch (IOException e) {
+            System.out.println("El archivo no existe\n");
+        }
+
+        return cont;
+    }
+
+    private static HashMap<ArrayList<Integer>, Character> llenarEstructura(String rutaDeCodigos) {
+        HashMap<ArrayList<Integer>,Character> estructura = new HashMap<>();
+
+        archive = new File(rutaDeCodigos);
+
+        try {
+            b_r_archive = new BufferedReader(new InputStreamReader(new FileInputStream(rutaDeCodigos), "utf-8"));
+            Character caracter;
+            String[] temp;
+            b_r_archive.readLine();
+            String texto = b_r_archive.readLine();
+
+            while (texto!=null){
+                temp = texto.split(",");
+                Integer digital[] = new Integer[temp[1].length()];
+                int indice=0;
+                caracter = (char) Integer.parseInt(temp[0]);
+                ArrayList<Integer> list = new ArrayList<>();
+
+                for(char c : temp[1].toCharArray()){
+                    list.add(Integer.valueOf(c)-48);
+                }
+                estructura.put(list,caracter);
+                texto = b_r_archive.readLine();
+            }
+            b_r_archive.close();
+        } catch (IOException e) {
+            System.out.println("El archivo no existe\n");
+        }
+
+        return estructura;
     }
 
     public static ArrayList<Nodo> unir(ArrayList<Nodo> data){
@@ -187,8 +263,6 @@ public class Main {
         }
     }
 
-
-    //8 13 18
     public static void hacerHammingDeMasDe8(String rutaDeArchivo, String rutaSalida, String rutaSalidaError, int tipo) throws IOException {
 
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
@@ -307,7 +381,6 @@ public class Main {
             indexBuffer = 0;
         }
     }
-
 
     public static void deshacerHamming8(String rutaDeArchivo, String rutaSalida, boolean corregir) throws IOException {
         int[] buffer_salida = new int[8];       //informacion pendiente para salir
@@ -456,7 +529,6 @@ public class Main {
 
     }
 
-
     public static ArrayList<int[]> actualizarLista(ArrayList<Character> listaC) throws IOException {
         return aBinario(listaC);
     }
@@ -504,10 +576,6 @@ public class Main {
         return paraDecodificar;
     }
 
-    //[-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2....,-2]
-
-    //[1,1,1,1,1,0,0,1]
-
     public static int[] rellenaArreglo256omas(int[] arreglo, int[] caracter, int primero) {
         int j = primero;//recorre caracter
 
@@ -543,9 +611,6 @@ public class Main {
 
     public static ArrayList leerArchivo(String rutaArchive) throws IOException { //se lee la info que esta en el archivo archive
         archive = new File(rutaArchive);
-        int size = 0;
-        int tamaño = (int) archive.length();
-
         ArrayList<Character> lis = new ArrayList<>();
 
         try {
@@ -616,11 +681,9 @@ public class Main {
         }
     }
 
-
-
     public static ArrayList<int[]> aBinario(ArrayList<Character> lista) throws IOException {
         int[] info = new int[8];
-        ArrayList<int[]> aux = new ArrayList<int[]>();
+        ArrayList<int[]> aux = new ArrayList<>();
         String textoBinario = "";
 
         for (Character character : lista) {
@@ -862,6 +925,9 @@ public class Main {
                     //System.out.println("SALIENDO DEL PROGRAMA");
                     break;
                 }
+                case 6:
+                    deshacerHuffman("src/com/company/huffmanSalida.txt","src/com/company/codigosHuffman.txt");
+                    break;
             }
 
         }
