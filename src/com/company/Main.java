@@ -1,7 +1,6 @@
 package com.company;
 
 import java.io.*;
-import java.security.spec.RSAOtherPrimeInfo;
 import java.util.*;
 
 
@@ -14,13 +13,7 @@ public class Main {
     static BufferedReader b_r_archive;
 
     static int[] ctrls = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144};
-    static int[] ctrolInCrols = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
     static int[] ctrolInArreglo = {0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095, 8191, 16383, 32767, 65535, 131071, 262143};
-
-
-
-
-
 
     public static void hacerHuffman(String rutaDeArchivo, String rutaSalida, String rutaDeCodigos) throws IOException {
 
@@ -91,7 +84,7 @@ public class Main {
         salidaDeCodigos(rutaDeCodigos,estructura,cont);
     }
 
-    public static void deshacerHuffman(String rutaDeArchivo,String rutaDeCodigos) throws IOException {
+    public static void deshacerHuffman(String rutaDeArchivo,String rutaDeCodigos,String rutaDescomprimido) throws IOException {
         HashMap<ArrayList<Integer>,Character> estructura;
         ArrayList<Character> listaC;
         int cont = recuperarCont(rutaDeCodigos);
@@ -104,32 +97,26 @@ public class Main {
         Arrays.fill(arreglocaracter,-2);
         int arregloIndice = 0;
 
-
-        while (!listaC.isEmpty()){
+        while (!listaC.isEmpty()||!caracter.isEmpty()||distinto(arreglocaracter,-2)){
             if(estructura.containsKey(caracter)){
-                //estructura.remove(caracter) <--- salida a archivo
+                escrituraCaracter(rutaDescomprimido,estructura.get(caracter));
+                caracter.clear();
             }else {
                 if (distinto(arreglocaracter,-2)) {
                     caracter.add(arreglocaracter[arregloIndice]);
                     arreglocaracter[arregloIndice] =-2;
                     arregloIndice++;
                 } else {
-                    //listaC.remove(0).charValue();
-
+                    arreglocaracter = aBinarioCharacter(listaC.remove(0));
+                    arregloIndice=0;
+                    if (listaC.isEmpty()){//eliminar los 0 extra
+                        for (int i=8-cont;i<8;i++){
+                            arreglocaracter[i]=-2;
+                        }
+                    }
                 }
-
             }
-
-
         }
-
-        /*
-        levantar salida huffman y pasar a binario
-        tomar bits hasta que alguno coincida con alguna key del mapa, reemplazar y escribir en archivo de salida
-
-         */
-
-
     }
 
     private static int recuperarCont(String rutaDeCodigos){
@@ -647,6 +634,19 @@ public class Main {
         b_w_auxiliar.close();
     }
 
+    public static void escrituraCaracter(String rutaArchivo,Character caracter) throws IOException {
+        File archivo = new File(rutaArchivo);
+
+        if (!archivo.exists()){
+            archivo.createNewFile();
+        }
+
+        w_auxiliar = new FileWriter(archivo.getAbsoluteFile(), true);
+        b_w_auxiliar = new BufferedWriter(w_auxiliar);
+        b_w_auxiliar.write(caracter.charValue());
+        b_w_auxiliar.close();
+    }
+
     public static void salidaDeCodigos(String ruta,HashMap<Character, ArrayList<Integer>> estructura,int cont) throws IOException {
         File auxiliar = new File(ruta);
         if (!auxiliar.exists()) {
@@ -679,6 +679,30 @@ public class Main {
         } else {
             return (char) Integer.parseInt(cadena, 2); //paso a nro ascii
         }
+    }
+
+    public static int[] aBinarioCharacter (Character caracter){
+        int[] info = new int[8];
+        String textoBinario = "";
+
+        int n = caracter.charValue(); //obtengo el valor en ascii del caracter
+        String letra = Integer.toBinaryString(n); //pasa a binario el nro anterior
+        int nCeros = Integer.parseInt(letra); //pasa a entero el string letra para luego poder agregarle los ceros necesarios
+        textoBinario += (String.format("%08d", nCeros));
+
+        int cadaN = 8;
+        String separarCon = " ";
+        textoBinario = textoBinario.replaceAll("(?s).{" + cadaN + "}(?!$)", "$0" + separarCon);
+
+        String[] lenguajesComoArreglo = textoBinario.split(" ");
+
+        int r;
+        for (String a : lenguajesComoArreglo) {
+            for (r = 0; r < 8; r++) {
+                info[r] = Character.getNumericValue(a.charAt(r));
+            }
+        }
+        return info;
     }
 
     public static ArrayList<int[]> aBinario(ArrayList<Character> lista) throws IOException {
@@ -926,7 +950,7 @@ public class Main {
                     break;
                 }
                 case 6:
-                    deshacerHuffman("src/com/company/huffmanSalida.txt","src/com/company/codigosHuffman.txt");
+                    deshacerHuffman("src/com/company/huffmanSalida.txt","src/com/company/codigosHuffman.txt","src/com/company/huffmanDescomprimido.txt");
                     break;
             }
 
@@ -934,14 +958,6 @@ public class Main {
 
 
     }
-
-
-    //info: arreglo de 4 248 8179 o 262126 bits de informacion
-    //cant: 3 8 13 18
-
-    //int[] ctrls               {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
-//cant  //int[] ctrolInCrols     0 1 2 3 4  5  6   7   8   9   10   11   12   13   14   15     16     17     18
-    //int[] ctrolInArreglo       0 1 3 7 15 31 63 127 255 511,1023,2047,4095,8191,16383,32767,65535,131071,262143
 
     public static int[] contruirHamming(int[] info, int cant) {
 
@@ -962,10 +978,6 @@ public class Main {
         return ham;
         //salida hamming con controles
     }
-
-
-    //recibe arreglo de 4 248 8179 o 262126 bits
-    //posInCtrol //3//8//13//18
 
     public static int[] addcontrols(int[] arr, int posInCtrol) {
 
@@ -1016,12 +1028,6 @@ public class Main {
         return arr;
     }
 
-
-    //int[] ctrls               {1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144};
-    //cant//int[] ctrolInCrols         0 1 2 3 4  5  6   7   8   9   10   11   12   13   14   15     16     17     18
-    //int[] ctrolInArreglo       0 1 3 7 15 31 63 127 255 511,1023,2047,4095,8191,16383,32767,65535,131071,262143
-
-    //cant: 3 8 13 18
     public static int[] adderror(int[] arr, int cant) {
         int tope = (ctrls[cant] - 2);
         Random random = new Random();
@@ -1036,7 +1042,6 @@ public class Main {
         }
         return local;
     }
-
 
     public static int[] corregirHamming(int a[], int parity_count, boolean corregir) {
 
@@ -1164,7 +1169,6 @@ public class Main {
 
     }
 
-
     public static boolean inCtrls(int numero) {
         return Arrays.stream(ctrls).anyMatch(i -> i == numero);
     }
@@ -1180,5 +1184,4 @@ public class Main {
     public static boolean distintoInteger(final Integer[] arr, final int key) {
         return Arrays.stream(arr).anyMatch(i -> i != key);
     }
-
 }
